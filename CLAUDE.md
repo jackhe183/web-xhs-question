@@ -298,4 +298,60 @@ C:/Users/root/Desktop/web-xhs-question/
 **最后更新**：2026年3月21日
 **核心特性**：配置化主题引擎 + CSS变量换肤
 **当前密码**：1234
-**下次任务**：根据需求添加更多主题模板
+**GitHub仓库**：https://github.com/jackhe183/web-xhs-question
+
+---
+
+## v2.1 更新 - 容器化部署方案（2026-03-21）
+
+### 新增部署配置文件
+| 文件名 | 说明 |
+|--------|------|
+| docker-compose.yml | Docker编排配置 |
+| Dockerfile | Docker镜像构建配置 |
+| nginx.conf | Nginx静态文件服务配置 |
+| vercel.json | Vercel平台部署配置 |
+| .dockerignore | Docker构建忽略文件 |
+| .vercelignore | Vercel部署忽略文件 |
+
+### 支持三种部署方式
+
+#### 方式一：Vercel 部署（推荐）⭐
+- 访问 https://vercel.com
+- 导入 GitHub 仓库 `jackhe183/web-xhs-question`
+- 一键部署，自动获得 `https://xxx.vercel.app` 链接
+- 免费、全球CDN、自动HTTPS
+
+#### 方式二：Docker 本地运行
+```bash
+docker-compose up -d
+# 访问 http://localhost:8080
+```
+
+#### 方式三：云服务器部署
+```bash
+# 安装 Docker
+curl -fsSL https://get.docker.com | sh
+
+# 克隆项目
+git clone https://github.com/jackhe183/web-xhs-question.git
+cd web-xhs-question
+
+# 启动服务
+docker-compose up -d
+```
+
+### 部署相关命令
+```bash
+# 查看容器状态
+docker-compose ps
+
+# 查看日志
+docker-compose logs -f
+
+# 停止服务
+docker-compose down
+
+# 重新构建
+docker-compose up -d --build
+```
