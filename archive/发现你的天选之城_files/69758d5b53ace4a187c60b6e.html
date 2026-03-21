@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<!-- saved from url=(0068)https://www.html2web.com/view/69758d5b53ace4a187c60b6e?password=6666 -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>发现你的天选之城</title>
+    <style>
+        :root {
+            --primary-teal: #2c96a4; 
+            --light-teal-bg: #eef8f9; 
+            --reason-bg: #f4f9fa;     
+            --star-yellow: #face15;   
+            --text-dark: #1a1a1a;
+            --text-gray: #666;
+            --alt-bg: #fafafa;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; 
+            background: #f0f2f5; 
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; 
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+        }
+
+        #app {
+            width: 100vw; height: 177.78vw; max-width: 450px; max-height: 800px;
+            background: #fff; position: relative; overflow: hidden;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.2); 
+            display: flex; flex-direction: column;
+        }
+
+        /* 背景流体动效 */
+        .fluid-bg {
+            position: absolute; width: 250%; height: 250%; top: -75%; left: -75%;
+            background: radial-gradient(circle at 20% 30%, #e0f7fa 0%, transparent 40%),
+                        radial-gradient(circle at 80% 20%, #e8f5e9 0%, transparent 40%),
+                        radial-gradient(circle at 40% 80%, #fff3e0 0%, transparent 40%);
+            filter: blur(60px); z-index: 0; animation: rotateBg 25s linear infinite;
+        }
+        @keyframes rotateBg { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .page { position: relative; z-index: 10; height: 100%; width: 100%; display: none; flex-direction: column; padding: 25px; animation: fadeIn 0.6s ease; }
+        .active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- 封面 --- */
+        .cover-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .hot-tag { background: var(--primary-teal); color: white; padding: 6px 16px; border-radius: 50px; font-size: 11px; font-weight: bold; margin-bottom: 25px; letter-spacing: 1px; }
+        .main-title { font-size: 44px; font-weight: 900; line-height: 1.15; color: var(--text-dark); margin: 0; letter-spacing: -1px; }
+        .main-title span { color: var(--primary-teal); position: relative; z-index: 1; }
+        .main-title span::after { content: ''; position: absolute; bottom: 4px; left: 0; width: 100%; height: 10px; background: rgba(44, 150, 164, 0.15); z-index: -1; border-radius: 4px; }
+        .float-icon { font-size: 90px; margin: 40px 0; animation: float 4s ease-in-out infinite; filter: drop-shadow(0 15px 15px rgba(44, 150, 164, 0.2)); }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        .desc-text { color: #666; font-size: 15px; line-height: 1.8; margin-top: 10px; max-width: 90%; font-weight: 400; letter-spacing: 0.5px; }
+
+        /* --- 答题 --- */
+        .quiz-header { margin-bottom: 20px; }
+        .p-info { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
+        .p-num { font-size: 28px; font-weight: 900; color: var(--primary-teal); }
+        .p-total { font-size: 14px; color: #aaa; margin-left: 5px; }
+        .p-bar-bg { height: 6px; background: rgba(0,0,0,0.05); border-radius: 10px; overflow: hidden; }
+        .p-bar-fill { height: 100%; background: var(--primary-teal); width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .q-card { background: rgba(255,255,255,0.95); border-radius: 24px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; margin-top: 15px;}
+        .q-text { font-size: 19px; font-weight: 600; line-height: 1.5; margin-bottom: 25px; color: #333; }
+        .opt-btn { background: #fff; border: 1.5px solid #eef2f5; padding: 15px 20px; border-radius: 16px; font-size: 15px; cursor: pointer; transition: 0.2s; margin-bottom: 10px; text-align: left; color: #555; }
+        .opt-btn:active { transform: scale(0.98); border-color: var(--primary-teal); background: var(--light-teal-bg); color: var(--primary-teal); }
+
+        /* --- 结果页 --- */
+        .result-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; overflow-y: auto; }
+        .res-top-title { font-size: 16px; font-weight: 800; color: var(--primary-teal); margin-bottom: 4px; text-align: center; }
+        .res-sub-title { font-size: 11px; color: #999; margin-bottom: 15px; letter-spacing: 1px; }
+
+        .res-card {
+            background: #fff; width: 100%; border-radius: 24px; padding: 30px 20px;
+            box-shadow: 0 15px 40px rgba(44, 150, 164, 0.1); 
+            position: relative; text-align: center; border: 1px solid #fff;
+        }
+
+        .deco-star { position: absolute; top: 20px; right: 15px; font-size: 30px; color: var(--star-yellow); animation: pulse 2s infinite; text-shadow: 0 0 10px rgba(250, 206, 21, 0.4); z-index: 1; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+
+        .icon-box { width: 70px; height: 70px; margin: 0 auto 10px; background: linear-gradient(135deg, #4db6c4 0%, #2c96a4 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 35px; color: #fff; box-shadow: 0 10px 20px rgba(44, 150, 164, 0.25); }
+        
+        .match-score { font-size: 50px; font-weight: 900; color: var(--primary-teal); line-height: 1; margin: 5px 0 10px; letter-spacing: -2px; }
+        .match-city-line { font-size: 18px; font-weight: 800; color: var(--text-dark); margin-bottom: 15px; }
+        .match-city-line span { font-size: 22px; margin-left: 5px; position: relative; }
+        .match-city-line span::after { content: ''; position: absolute; bottom: 2px; left: 0; width: 100%; height: 8px; background: rgba(250, 206, 21, 0.4); z-index: -1; border-radius: 4px; }
+
+        .tags-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 20px; }
+        .res-tag-pill { background: var(--light-teal-bg); color: #406e75; font-size: 11px; padding: 5px 12px; border-radius: 10px; font-weight: 600; }
+
+        .reason-box { background: var(--reason-bg); border-radius: 14px; padding: 15px; text-align: left; margin-bottom: 20px; }
+        .reason-head { font-size: 13px; font-weight: 800; color: var(--primary-teal); margin-bottom: 5px; }
+        .reason-text { font-size: 12px; color: #555; line-height: 1.6; text-align: justify; }
+
+        /* --- 备选城市模块 (优化版：2个项目) --- */
+        .alt-section { border-top: 1px dashed #eee; padding-top: 15px; margin-top: 10px; }
+        .alt-title { font-size: 11px; color: #aaa; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+        .alt-list { display: flex; flex-direction: column; gap: 10px; /* 增加间距 */ }
+        .alt-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: var(--alt-bg); padding: 12px 16px; /* 增加内边距 */
+            border-radius: 12px;
+        }
+        .alt-left { display: flex; align-items: center; gap: 8px; }
+        .alt-name { font-size: 14px; font-weight: 700; color: #333; }
+        .alt-tag { font-size: 10px; color: #888; background: #fff; padding: 2px 6px; border-radius: 4px; border: 1px solid #eee; }
+        .alt-score { font-size: 15px; font-weight: 800; color: var(--primary-teal); }
+
+        .btn-main { 
+            background: var(--text-dark); color: #fff; border: none; padding: 18px; 
+            border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 85%; margin-top: 20px;
+            transition: all 0.3s;
+        }
+        .btn-main:active { transform: scale(0.95); opacity: 0.9; }
+    </style>
+<style id="market-mate-selection-bubble-font">@font-face{font-family:market-mate-iconfont;src:url(data:font/woff;base64,d09GRgABAAAAAAawAAsAAAAACkwAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABHU1VCAAABCAAAADsAAABUIIslek9TLzIAAAFEAAAARAAAAGA8FkjXY21hcAAAAYgAAABfAAABovyZ0OZnbHlmAAAB6AAAAqUAAANQhOlcg2hlYWQAAASQAAAALwAAADYsWXFlaGhlYQAABMAAAAAcAAAAJAfeA4ZobXR4AAAE3AAAAA4AAAAUFAAAAGxvY2EAAATsAAAADAAAAAwBvAKsbWF4cAAABPgAAAAfAAAAIAEWAIRuYW1lAAAFGAAAAVgAAAL317GhgXBvc3QAAAZwAAAAQAAAAFJzPFE%2FeJxjYGRgYOBiMGCwY2BycfMJYeDLSSzJY5BiYGGAAJA8MpsxJzM9kYEDxgPKsYBpDiBmg4gCACY7BUgAeJxjYGFhYJzAwMrAwNTJdIaBgaEfQjO%2BZjBi5ACKMrAyM2AFAWmuKQwHnjE%2BY2du%2BN%2FAwMB8hwFIMjCiKGICAGMrDGh4nO2Q0Q2AIAwFrxQhIY7ihyM4iF8O3zWwtI7hS46mB%2BHjARugzuFUkAdh5XYr4ZURvnL63nwKxdT6nGCS0yN%2BN%2BK3eOGi8WeP8%2Fq2uhpLVutWkvCarNatJ5QXVtwRRgB4nE1SPW%2FTUBR91ybvxbFdJ9QfpYnrxiY2UhuHuKmDEvUjInRL01QdqYSg6ccGBYmhDF1YK9EFhNSCWrFUQogFFBjCDguqqrLyD7pUTDE8uwFxZV%2Bfe3TOk%2B99F11C6PdT9iO7hVLIQtfRFEKgKimZxLCTsydTpXLO12I5m9aU1WIqrSlL5AEwXShNgzcCpOSCOQDyCHjTwD6pVIJutRp0KxWoVauQDbrpdNAdHoZaOg214a9u83bTjdKsXqwU9Sgxr8x6sFM3OyZ96rAZobOOJHWSRrBjJC8QbBo%2F3L6ZfvW%2BWS8iQvs4ZrtsjXZRRTPoJlpGj9Bj2s1kyR4DE%2BtghUlWq6CEyfOnYCJMJdsqW6ZNgU9ZlUow1Ye1FVOsySx9QY2oAlhkAEJUHvRnwNdUjR7xv%2BPvCbkJB5Y4cpVwB3ImIx9E8CiEb3lOELhjY1yMq5zA9%2FZ24f5LZp2NE4Mk2NypxSbINUKYNyTJaEoy3nt43DcInBoXGX2%2FxZzNEo4jsxn5i5zZDuF2BJNUwQnjxnloOOcXXtPolbFAYostTAQMD5IcJPh4KvgscAonhkpRpMo77xFi6Py%2B0z1YRDryEMphgh0XHLs8DWVfGwFNJZhoqiwBNh225NiObVIGy3QIqlf2yz7zc3Gjfa%2B9OzSUybxYXWmv72WNQeXWIcYSSZGlQr6x0Flo5Av%2FwNacLI%2BO7q%2B1V9ae62ntyrPVu6sbrUN8GUsYw%2Blys%2BHSaDQ%2FNefzrpufbyIaLP3Pb%2BwH9gbSkIN8er8Xg5%2FIeuHaRhdB99O2YilZpaQfFVkTD4Z0KKMqWjMpXpJ4KBTrUkLkJUPtiZ7FjFmeZ%2FVOLG8OCxwzpii9E475JfFiQqoXg3eRpaUaR6GkL%2B8dYqrkBCpVEPoDs%2Bel1QAAAHicY2BkYGAA4jIejqx4fpuvDNwsDCDwZK7YFgT9v5WFgbkayOVgYAKJAgD9BQlLAHicY2BkYGBu%2BN%2FAEMPCAAJAkpEBFbACAEcLAm54nGNhYGBgQcMAAQQAFQAAAAAAAABkAQQBWAGoeJxjYGRgYGBlqGBgZwABJiDmAkIGhv9gPgMAFSoBmwB4nI2SzU7CQBSFz%2FBnhEQTNa5nhSSm5WdjwlIS2LPo1pQy5a%2FtNNOBhIcx8R18Gje%2BhC%2FgoYwbZEGbufnuuefezrQFcIdvCByve64jCzwwO3IFV3hyXKXuO66RXx3X0ULguEE9dNzEM7aOW5z4wQmids2sjU%2FHAh18Oa7gRgjHVXTEreMa%2BcVxHY%2FizXGD%2BtZxE4F4d9xCW%2FyMjAqtmsvZXq4incU6s2loNsp6KXXvT5uqxTYJzbnSOS1QpljpTPb93rnyRGXK%2FD222C0G1sYyNjqVY1ZVkmiZG71WkfWX1ubDbjd2uh%2FpFCMYKL4%2ByziHxAx7xhUiaGSIy2iR0mGwocfCK7OD3%2Fvnm1Jd8AMkpf%2FSrkt9AVWDgvohl%2Bjz1%2Bhd3D2hmpUTTk9bYMddD6hauiWXYU9KGrtexRMlZIm8rK2pRNR9LMuuHEN0eccnfr%2FcQ%2FoLJz6TTHicY2BigAAuBuyAlZGJkZmRhZGVkY2BP1G3OCO1KiMzuzQxKzMvnTUtMa8yk604v7S4NJ81rRQow8AAAAfrDTc%3D)}.market-mate-selection-bubble-font{font-size:14px;font-style:normal;font-family:market-mate-iconfont!important}</style><style data-id="immersive-translate-input-injected-css">.immersive-translate-input {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 2147483647;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.immersive-translate-attach-loading::after {
+  content: " ";
+
+  --loading-color: #f78fb6;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: block;
+  margin: 12px auto;
+  position: relative;
+  color: white;
+  left: -100px;
+  box-sizing: border-box;
+  animation: immersiveTranslateShadowRolling 1.5s linear infinite;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-2000%, -50%);
+  z-index: 100;
+}
+
+.immersive-translate-loading-spinner {
+  vertical-align: middle !important;
+  width: 10px !important;
+  height: 10px !important;
+  display: inline-block !important;
+  margin: 0 4px !important;
+  border: 2px rgba(221, 244, 255, 0.6) solid !important;
+  border-top: 2px rgba(0, 0, 0, 0.375) solid !important;
+  border-left: 2px rgba(0, 0, 0, 0.375) solid !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  -webkit-animation: immersive-translate-loading-animation 0.6s infinite linear !important;
+  animation: immersive-translate-loading-animation 0.6s infinite linear !important;
+}
+
+@-webkit-keyframes immersive-translate-loading-animation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+
+@keyframes immersive-translate-loading-animation {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(359deg);
+  }
+}
+
+.immersive-translate-input-loading {
+  --loading-color: #f78fb6;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: block;
+  margin: 12px auto;
+  position: relative;
+  color: white;
+  left: -100px;
+  box-sizing: border-box;
+  animation: immersiveTranslateShadowRolling 1.5s linear infinite;
+}
+
+@keyframes immersiveTranslateShadowRolling {
+  0% {
+    box-shadow: 0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0),
+      0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0);
+  }
+
+  12% {
+    box-shadow: 100px 0 var(--loading-color), 0px 0 rgba(255, 255, 255, 0),
+      0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0);
+  }
+
+  25% {
+    box-shadow: 110px 0 var(--loading-color), 100px 0 var(--loading-color),
+      0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0);
+  }
+
+  36% {
+    box-shadow: 120px 0 var(--loading-color), 110px 0 var(--loading-color),
+      100px 0 var(--loading-color), 0px 0 rgba(255, 255, 255, 0);
+  }
+
+  50% {
+    box-shadow: 130px 0 var(--loading-color), 120px 0 var(--loading-color),
+      110px 0 var(--loading-color), 100px 0 var(--loading-color);
+  }
+
+  62% {
+    box-shadow: 200px 0 rgba(255, 255, 255, 0), 130px 0 var(--loading-color),
+      120px 0 var(--loading-color), 110px 0 var(--loading-color);
+  }
+
+  75% {
+    box-shadow: 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0),
+      130px 0 var(--loading-color), 120px 0 var(--loading-color);
+  }
+
+  87% {
+    box-shadow: 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0),
+      200px 0 rgba(255, 255, 255, 0), 130px 0 var(--loading-color);
+  }
+
+  100% {
+    box-shadow: 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0),
+      200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.immersive-translate-modal {
+  position: fixed;
+  z-index: 2147483647;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+  font-size: 15px;
+}
+
+.immersive-translate-modal-content {
+  background-color: #fefefe;
+  margin: 10% auto;
+  padding: 40px 24px 24px;
+  border-radius: 12px;
+  width: 350px;
+  font-family: system-ui, -apple-system, "Segoe UI", "Roboto", "Ubuntu",
+    "Cantarell", "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+  position: relative;
+}
+
+@media screen and (max-width: 768px) {
+  .immersive-translate-modal-content {
+    margin: 25% auto !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .immersive-translate-modal-content {
+    width: 80vw !important;
+    margin: 20vh auto !important;
+    padding: 20px 12px 12px !important;
+  }
+
+  .immersive-translate-modal-title {
+    font-size: 14px !important;
+  }
+
+  .immersive-translate-modal-body {
+    font-size: 13px !important;
+    max-height: 60vh !important;
+  }
+
+  .immersive-translate-btn {
+    font-size: 13px !important;
+    padding: 8px 16px !important;
+    margin: 0 4px !important;
+  }
+
+  .immersive-translate-modal-footer {
+    gap: 6px !important;
+    margin-top: 16px !important;
+  }
+}
+
+.immersive-translate-modal .immersive-translate-modal-content-in-input {
+  max-width: 500px;
+}
+.immersive-translate-modal-content-in-input .immersive-translate-modal-body {
+  text-align: left;
+  max-height: unset;
+}
+
+.immersive-translate-modal-title {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #333333;
+}
+
+.immersive-translate-modal-body {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 400;
+  color: #333333;
+  margin-top: 24px;
+}
+
+@media screen and (max-width: 768px) {
+  .immersive-translate-modal-body {
+    max-height: 250px;
+    overflow-y: auto;
+  }
+}
+
+.immersive-translate-close {
+  color: #666666;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.immersive-translate-close:hover,
+.immersive-translate-close:focus {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.immersive-translate-modal-footer {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.immersive-translate-btn {
+  width: fit-content;
+  color: #fff;
+  background-color: #ea4c89;
+  border: none;
+  font-size: 14px;
+  margin: 0 8px;
+  padding: 9px 30px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.immersive-translate-btn-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.immersive-translate-btn:hover {
+  background-color: #f082ac;
+}
+.immersive-translate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.immersive-translate-btn:disabled:hover {
+  background-color: #ea4c89;
+}
+
+.immersive-translate-link-btn {
+  background-color: transparent;
+  color: #ea4c89;
+  border: none;
+  cursor: pointer;
+  height: 30px;
+  line-height: 30px;
+}
+
+.immersive-translate-cancel-btn {
+  /* gray color */
+  background-color: rgb(89, 107, 120);
+}
+
+.immersive-translate-cancel-btn:hover {
+  background-color: hsl(205, 20%, 32%);
+}
+
+.immersive-translate-action-btn {
+  background-color: transparent;
+  color: #ea4c89;
+  border: 1px solid #ea4c89;
+}
+
+.immersive-translate-btn svg {
+  margin-right: 5px;
+}
+
+.immersive-translate-link {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-drag: none;
+  text-decoration: none;
+  color: #ea4c89;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+}
+
+.immersive-translate-primary-link {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-drag: none;
+  text-decoration: none;
+  color: #ea4c89;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+}
+
+.immersive-translate-modal input[type="radio"] {
+  margin: 0 6px;
+  cursor: pointer;
+}
+
+.immersive-translate-modal label {
+  cursor: pointer;
+}
+
+.immersive-translate-close-action {
+  position: absolute;
+  top: 2px;
+  right: 0px;
+  cursor: pointer;
+}
+
+.imt-image-status {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 16px !important;
+}
+.imt-image-status img,
+.imt-image-status svg,
+.imt-img-loading {
+  width: 28px !important;
+  height: 28px !important;
+  margin: 0 0 8px 0 !important;
+  min-height: 28px !important;
+  min-width: 28px !important;
+  position: relative !important;
+}
+.imt-img-loading {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADgAAAA4CAMAAACfWMssAAAAtFBMVEUAAAD////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////oK74hAAAAPHRSTlMABBMIDyQXHwyBfFdDMSw+OjXCb+5RG51IvV/k0rOqlGRM6KKMhdvNyZBz9MaupmxpWyj437iYd/yJVNZeuUC7AAACt0lEQVRIx53T2XKiUBCA4QYOiyCbiAsuuGBcYtxiYtT3f6/pbqoYHVFO5r+iivpo6DpAWYpqeoFfr9f90DsYAuRSWkFnPO50OgR9PwiCUFcl2GEcx+N/YBh6pvKaefHlUgZd1zVe0NbYcQjGBfzrPE8Xz8aF+71D8gG6DHFPpc4a7xFiCDuhaWgKgGIJQ3d5IMGDrpS4S5KgpIm+en9f6PlAhKby4JwEIxlYJV9h5k5nee9GoxHJ2IDSNB0dwdad1NAxDJ/uXDHYmebdk4PdbkS58CIVHdYSUHTYYRWOJblWSyu2lmy3KNFVJNBhxcuGW4YBVCbYGRZwIooipHsNqjM4FbgOQqQqSKQQU9V8xmi1QlgHqQQ6DDBvRUVCDirs+EzGDGOQTCATgtYTnbCVLgsVgRE0T1QE0qHCFAht2z6dLvJQs3Lo2FQoDxWNUiBhaP4eRgwNkI+dAjVOA/kUrIDwf3CG8NfNOE0eiFotSuo+rBiq8tD9oY4Qzc6YJw99hl1wzpQvD7ef2M8QgnOGJfJw+EltQc+oX2yn907QB22WZcvlUpd143dqQu+8pCJZuGE4xCuPXJqqcs5sNpsI93Rmzym1k4Npk+oD1SH3/a3LOK/JpUBpWfqNySxWzCfNCUITuDG5dtuphrUJ1myeIE9bIsPiKrfqTai5WZxbhtNphYx6GEIHihyGFTI69lje/rxajdh0s0msZ0zYxyPLhYCb1CyHm9Qsd2H37Y3lugVwL9kNh8Ot8cha6fUNQ8nuXi5z9/ExsAO4zQrb/ev1yrCB7lGyQzgYDGuxq1toDN/JGvN+HyWNHKB7zEoK+PX11e12G431erGYzwmytAWU56fkMHY5JJnDRR2eZji3AwtIcrEV8Cojat/BdQ7XOwGV1e1hDjGGjXbdArm8uJZtCH5MbcctVX8A1WpqumJHwckAAAAASUVORK5CYII=");
+  background-size: 28px 28px;
+  animation: image-loading-rotate 1s linear infinite !important;
+}
+
+.imt-image-status span {
+  color: var(--bg-2, #fff) !important;
+  font-size: 14px !important;
+  line-height: 14px !important;
+  font-weight: 500 !important;
+  font-family: "PingFang SC", Arial, sans-serif !important;
+}
+
+.imt-primary-button {
+  display: flex;
+  padding: 12px 80px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  background: #ea4c89;
+  color: #fff;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px;
+  border: none;
+  cursor: pointer;
+}
+
+.imt-retry-text {
+  color: #999;
+  text-align: center;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 21px;
+  cursor: pointer;
+}
+
+.imt-action-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.imt-modal-content-text {
+  text-align: left;
+  color: #333;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+@keyframes image-loading-rotate {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.imt-linear-gradient-text {
+  background: linear-gradient(90deg, #00a6ff 0%, #c369ff 52.4%, #ff4590 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.imt-flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imt-linear-black-btn {
+  border-radius: 50px;
+  background: linear-gradient(66deg, #222 19%, #696969 94.25%);
+  height: 48px;
+  width: 100%;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  justify-content: center;
+}
+</style></head>
+<body>
+
+<input id="te12fmgitg" type="hidden" name="market-mate-for-1688" value="installed" data-version="1.1.0" data-package="edge-store" data-id="pmboidfffhijmecmhpmgpmnkjamipkdo" data-content-script-message-host-web-app-channel-id="pmboidfffhijmecmhpmgpmnkjamipkdo-content-script-message-with-host-web-app"><div id="app">
+    <div class="fluid-bg"></div>
+
+    <div id="page-cover" class="page active">
+        <div class="cover-content">
+            <div class="hot-tag">✨ 已有 18.6W+ 人找到归属</div>
+            <h1 class="main-title">发现你的<br><span>天选之城</span></h1>
+            <div class="float-icon">🏙️</div>
+            <p class="desc-text">
+                世界再大，总有一座城与你的灵魂同频共振。<br>36维潜意识深度解码，跨越山海，只为精准定位那个最懂你的本命坐标。
+            </p>
+        </div>
+        <button class="btn-main" style="background: var(--primary-teal);" onclick="startQuiz()">开启你的发现之旅</button>
+    </div>
+
+    <div id="page-quiz" class="page">
+        <div class="quiz-header">
+            <div class="p-info">
+                <div><span class="p-num" id="curr-num">01</span><span class="p-total">/ 36</span></div>
+                <div style="font-size: 12px; color: #bbb; font-weight: bold; letter-spacing: 1px;">ANALYZING</div>
+            </div>
+            <div class="p-bar-bg"><div id="p-bar" class="p-bar-fill"></div></div>
+        </div>
+        <div class="q-card">
+            <div class="q-text" id="q-text">题目加载中...</div>
+            <div id="opt-list"></div>
+        </div>
+    </div>
+
+    <div id="page-result" class="page">
+        <div class="result-container">
+            <div class="res-top-title">你的性格与这座城市最匹配</div>
+            <div class="res-sub-title">发现你的“天选之城”</div>
+            
+            <div class="res-card">
+                <div class="deco-star">✦</div>
+                <div class="icon-box">📍</div>
+
+                <div class="match-label">✨ 核心契合度</div>
+                <div id="res-score" class="match-score">92%</div>
+                <div class="match-city-line">你的天选之城：<span id="res-city">西安</span></div>
+
+                <div class="tags-grid" id="res-tags-container"></div>
+
+                <div class="reason-box">
+                    <div class="reason-head">✨ 匹配理由</div>
+                    <div id="res-reason" class="reason-text"></div>
+                </div>
+
+                <div class="alt-section">
+                    <div class="alt-title">其他适合你的城市</div>
+                    <div class="alt-list" id="alt-cities-list">
+                        </div>
+                </div>
+            </div>
+
+            <button class="btn-main" onclick="location.reload()">换个心态，再测一次</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 题目数据
+    const questions = [
+        { q: "周末早晨醒来，你最希望窗外映入眼帘的是？", opts: [{t:"充满科技感的摩天大楼",s:"A"},{t:"烟火气十足的街道",s:"B"},{t:"波光粼粼的大海",s:"C"},{t:"厚重的古建筑红墙",s:"D"},{t:"笼罩在晨雾里的湖泊",s:"E"}] },
+        { q: "此时音响里流淌出的第一首歌应该是？", opts: [{t:"精致的法式Jazz",s:"A"},{t:"节奏轻快的民谣",s:"B"},{t:"治愈系的白噪音",s:"C"},{t:"浑厚的古典交响",s:"D"},{t:"清新脱俗的流行乐",s:"E"}] },
+        { q: "早起的第一杯饮品，你偏爱？", opts: [{t:"冰美式或燕麦拿铁",s:"A"},{t:"浓郁的盖碗茶",s:"B"},{t:"手冲咖啡或冷萃",s:"C"},{t:"热豆浆或花茶",s:"D"},{t:"鲜榨的果汁",s:"E"}] },
+        { q: "推门而出，你最喜欢的空气味道是？", opts: [{t:"高级沙龙香水味",s:"A"},{t:"辣椒与油脂的香气",s:"B"},{t:"湿润的海盐味",s:"C"},{t:"干燥的木质书卷香",s:"D"},{t:"雨后泥土草本香",s:"E"}] },
+        { q: "最让你舒适的建筑色调是？", opts: [{t:"冷淡的玻璃幕墙",s:"A"},{t:"彩色的老街涂鸦",s:"B"},{t:"明亮的白墙蓝窗",s:"C"},{t:"沉稳的红墙灰瓦",s:"D"},{t:"雅致的粉墙黛瓦",s:"E"}] },
+        { q: "你更愿意把家里的阳台布置成？", opts: [{t:"高空观景私人酒吧",s:"A"},{t:"堆满杂物的生活区",s:"B"},{t:"放着躺椅的小花园",s:"C"},{t:"可以写字喝茶的书斋",s:"D"},{t:"放着懒人沙发的投影区",s:"E"}] },
+        { q: "朋友临时组局，你最期待的活动是？", opts: [{t:"高空露台下午茶",s:"A"},{t:"街头苍蝇馆子",s:"B"},{t:"沙滩围炉煮茶",s:"C"},{t:"逛一场艺术展",s:"D"},{t:"骑行在绿道上",s:"E"}] },
+        { q: "在人群中，你通常扮演的角色是？", opts: [{t:"冷静的组织者",s:"A"},{t:"活跃气氛的开心果",s:"B"},{t:"温柔的倾听者",s:"C"},{t:"深刻的交谈者",s:"D"},{t:"随和的配合者",s:"E"}] },
+        { q: "参加派对，你更倾向哪种穿搭？", opts: [{t:"犀利的时装感",s:"A"},{t:"随性的多巴胺色",s:"B"},{t:"松弛的棉麻风",s:"C"},{t:"考究的中式复古",s:"D"},{t:"清新的CleanFit",s:"E"}] },
+        { q: "当你想逃避世界时，你会躲进？", opts: [{t:"24小时便利店",s:"A"},{t:"热闹的火锅店",s:"B"},{t:"无人的海边",s:"C"},{t:"深夜的旧书店",s:"D"},{t:"雨后的咖啡馆",s:"E"}] },
+        { q: "如果要养一只宠物，你会选？", opts: [{t:"优雅的品种猫",s:"A"},{t:"热情的狗狗",s:"B"},{t:"慢悠悠的小乌龟",s:"C"},{t:"沉稳的守宫",s:"D"},{t:"治愈系的小博美",s:"E"}] },
+        { q: "你理想的邻里关系是？", opts: [{t:"点头之交，互不干扰",s:"A"},{t:"经常串门送吃的",s:"B"},{t:"偶尔在露台打招呼",s:"C"},{t:"有共同爱好的深交",s:"D"},{t:"平和礼貌的相处",s:"E"}] },
+        { q: "关于“竞争”这件事，你的想法是？", opts: [{t:"渴望赢，它是燃料",s:"A"},{t:"随缘吧，开心重要",s:"B"},{t:"没意义，我选逃离",s:"C"},{t:"尊重它，那是规则",s:"D"},{t:"适度卷，但不强求",s:"E"}] },
+        { q: "你更喜欢哪种工作氛围？", opts: [{t:"坐在CBD精英圈",s:"A"},{t:"大家边吃边聊很热闹",s:"B"},{t:"对着美景远程办公",s:"C"},{t:"体面且有文化底蕴",s:"D"},{t:"园林式办公环境",s:"E"}] },
+        { q: "面对DDL，你的表现？", opts: [{t:"精准把控，提前完成",s:"A"},{t:"Deadline是第一生产力",s:"B"},{t:"心情好再做",s:"C"},{t:"按部就班，绝对稳健",s:"D"},{t:"一边焦虑一边优雅",s:"E"}] },
+        { q: "关于金钱，你的真实想法是？", opts: [{t:"能力的勋章",s:"A"},{t:"安逸的筹码",s:"B"},{t:"自由的工具",s:"C"},{t:"底气与尊严",s:"D"},{t:"够花就好",s:"E"}] },
+        { q: "如果生活是一部电影，基调应该是？", opts: [{t:"节奏紧凑的时装剧",s:"A"},{t:"黑色幽默喜剧",s:"B"},{t:"文艺公路片",s:"C"},{t:"宏大历史剧",s:"D"},{t:"温暖治愈片",s:"E"}] },
+        { q: "你认为成就感的最大来源是？", opts: [{t:"社会地位的跃迁",s:"A"},{t:"亲友聚餐的欢笑",s:"B"},{t:"去过多少未知之地",s:"C"},{t:"对传统文化的传承",s:"D"},{t:"内心的平静平衡",s:"E"}] },
+        { q: "挑选艺术品挂在客厅，你会选？", opts: [{t:"波普艺术版画",s:"A"},{t:"街头摄影作品",s:"B"},{t:"印象派油画",s:"C"},{t:"传统水墨意向",s:"D"},{t:"治愈系插画",s:"E"}] },
+        { q: "去陌生城市旅游，第一站通常是？", opts: [{t:"城市最高地标",s:"A"},{t:"当地美食步行街",s:"B"},{t:"最偏僻的海角",s:"C"},{t:"博物馆或旧址",s:"D"},{t:"文艺创意园区",s:"E"}] },
+        { q: "理想中的市集应该卖什么的？", opts: [{t:"潮流限定单品",s:"A"},{t:"稀奇古怪杂货",s:"B"},{t:"手作艺术品",s:"C"},{t:"旧书与字画",s:"D"},{t:"有机绿植",s:"E"}] },
+        { q: "你对“老建筑”的态度是？", opts: [{t:"改造成潮流店铺",s:"A"},{t:"住着舒服最重要",s:"B"},{t:"适合发呆的废墟",s:"C"},{t:"值得敬畏的记忆",s:"D"},{t:"城市美的点缀",s:"E"}] },
+        { q: "如果穿越时空，你更想去？", opts: [{t:"科幻未来城市",s:"A"},{t:"宋朝热闹街市",s:"B"},{t:"大航海时代",s:"C"},{t:"盛唐长安城",s:"D"},{t:"民国江南水乡",s:"E"}] },
+        { q: "你最喜欢的运动地点？", opts: [{t:"24小时高端健身房",s:"A"},{t:"街头篮球场",s:"B"},{t:"海边冲浪潜水",s:"C"},{t:"古树下慢跑",s:"D"},{t:"森林道徒步",s:"E"}] },
+        { q: "面对突如其来的大雨，你的反应？", opts: [{t:"迅速叫车不误事",s:"A"},{t:"找家小店吃个零食",s:"B"},{t:"享受雨水漫步",s:"C"},{t:"感叹雨中韵味",s:"D"},{t:"找咖啡馆看雨",s:"E"}] },
+        { q: "什么瞬间让你感到“幸福”？", opts: [{t:"达成目标拿到奖金",s:"A"},{t:"抢到最后一份美食",s:"B"},{t:"看到海边初升太阳",s:"C"},{t:"读到共鸣的文字",s:"D"},{t:"路边野花盛开",s:"E"}] },
+        { q: "在旅途中感到孤独时，你会？", opts: [{t:"刷社交平台找同好",s:"A"},{t:"去酒吧找陌生人聊天",s:"B"},{t:"听喜欢的音乐",s:"C"},{t:"写下内心感悟",s:"D"},{t:"坐着长椅看路人",s:"E"}] },
+        { q: "你更向往的减压方式是？", opts: [{t:"疯狂购物或SPA",s:"A"},{t:"大排档买醉",s:"B"},{t:"隐居山海间",s:"C"},{t:"看一场深度话剧",s:"D"},{t:"公园散步万步",s:"E"}] },
+        { q: "希望别人如何评价你？", opts: [{t:"专业且走在前沿",s:"A"},{t:"有趣真性情",s:"B"},{t:"温柔治愈有灵性",s:"C"},{t:"睿智值得信赖",s:"D"},{t:"自然舒服懂生活",s:"E"}] },
+        { q: "你对“浪漫”的定义更倾向于？", opts: [{t:"顶楼的璀璨星火",s:"A"},{t:"万家灯火里的热汤",s:"B"},{t:"牵手看一场日落",s:"C"},{t:"漫步历史遗迹",s:"D"},{t:"在烟雨中独行",s:"E"}] },
+        { q: "一个理想城市的灵魂在于？", opts: [{t:"无限的机会",s:"A"},{t:"滚烫的烟火",s:"B"},{t:"极致的自由",s:"C"},{t:"深厚的故事",s:"D"},{t:"平衡的安稳",s:"E"}] },
+        { q: "重大决定时，你的第一反应？", opts: [{t:"分析利弊做逻辑题",s:"A"},{t:"顺其自然看心情",s:"B"},{t:"追随内心的自由",s:"C"},{t:"寻找历史经验",s:"D"},{t:"求稳听取建议",s:"E"}] },
+        { q: "如果有个长假，你会选择？", opts: [{t:"飞纽约/伦敦看展",s:"A"},{t:"去曼谷吃夜市",s:"B"},{t:"去冰岛看极光",s:"C"},{t:"回老宅沉淀自己",s:"D"},{t:"去杭州住一周",s:"E"}] },
+        { q: "你认为生活的真谛是？", opts: [{t:"不断攀登巅峰",s:"A"},{t:"吃好每一顿饭",s:"B"},{t:"活在每一个当下",s:"C"},{t:"在时间中留下痕迹",s:"D"},{t:"与万物和谐相处",s:"E"}] },
+        { q: "你最喜欢的城市交通方式？", opts: [{t:"高效的地铁或打车",s:"A"},{t:"吵闹的小三轮",s:"B"},{t:"慢慢悠悠的轮渡",s:"C"},{t:"双脚丈量街道",s:"D"},{t:"骑行穿梭绿地",s:"E"}] },
+        { q: "最后，用一个动词形容人生？", opts: [{t:"奔跑",s:"A"},{t:"享受",s:"B"},{t:"漂浮",s:"C"},{t:"沉淀",s:"D"},{t:"绽放",s:"E"}] }
+    ];
+
+    const cityData = {
+        "A": [
+            { city: "上海", vibeTags: ["摩登", "边界感", "专业", "秩序", "精致", "独立"], desc: "你是典型的‘城市狩猎者’。上海这种高效、精致且彼此拥有极度边界感的磁场，是你野心的最佳温床。你享受在高楼林立中穿梭的快感，也迷恋梧桐树下的咖啡香。这里的规则感让你感到安全，无限的机遇让你的灵魂时刻保持兴奋。" },
+            { city: "深圳", vibeTags: ["极速", "年轻", "进化", "搞钱", "硬核", "未来"], desc: "你骨子里流淌着‘不进则退’的血液。你讨厌复杂的客套，更喜欢用结果说话。深圳这座没有历史包袱、全速奔跑的奇迹之城，最契合你对人生掌控权的热烈渴望。在这里，野心是褒义词，年轻是最大的资本。" }
+        ],
+        "B": [
+            { city: "成都", vibeTags: ["松弛", "乐天", "安逸", "美食", "包容", "烟火"], desc: "你是一个懂得取悦自己的‘情绪大师’，拒绝任何形式的精神内耗。成都这种滚烫的烟火气和随处可见的松弛感，能精准消解你所有的压力。在这里，没有什么是一顿火锅解决不了的，如果有，那就两顿。你需要的不是战场，而是生活。" },
+            { city: "重庆", vibeTags: ["赛博", "江湖", "热烈", "魔幻", "直爽", "立体"], desc: "你性格直爽，喜欢充满变量的人生。重庆这座层叠交错、不分昼夜的魔幻之城，正对应你内心深处那块不被定义的、野蛮生长的自由地带。你喜欢大开大合的情绪，也享受在迷宫般的街道中迷失又重逢的惊喜。" },
+            { city: "广州", vibeTags: ["务实", "生活味", "生猛", "平权", "美食", "低调"], desc: "你是一个追求真实质感的‘生活家’。你不需要虚华的标签，广州这种在精致与市井、传统与前卫之间切换自如的节奏，能让你找到最舒服的生活颗粒度。穿着拖鞋吃早茶的惬意，才是你心中真正的顶级奢侈。" }
+        ],
+        "C": [
+            { city: "厦门", vibeTags: ["文艺", "治愈", "清新", "海风", "慢调", "浪漫"], desc: "你是一个心思细腻的浪漫主义者，渴望被温柔对待。厦门那种带有咸味的海风和充满质感的建筑，最契合你对理想生活‘微醺状态’的全部想象。你不需要宏大的叙事，只需要在沙坡尾的夕阳下，找到内心的平静。" },
+            { city: "大理", vibeTags: ["自由", "流浪", "旷野", "治愈", "避世", "灵性"], desc: "你内心藏着一个不愿妥协的旅人，向往荒野也向往精神的绝对自由。大理这种可以彻底‘断网’、只面对苍山洱海的磁场，是你的终极避风港。在这里，时间是用来浪费的，而你是属于你自己的。" }
+        ],
+        "D": [
+            { city: "北京", vibeTags: ["厚重", "梦想", "包容", "硬核", "大气", "底蕴"], desc: "你有极强的使命感和文化情结。北京这种既有宏大叙事、又能容纳各种灵魂‘不服输’劲头的城市，能承载你对人生广度与深度的所有野心。你沉醉于胡同里的烟火，也向往CBD的巅峰，这里是你实现抱负的最佳舞台。" },
+            { city: "西安", vibeTags: ["古朴", "豪迈", "穿越", "碳水", "历史", "定力"], desc: "你内心沉稳，比起瞬息万变的潮流，你更相信时间沉淀下的真理。西安这座活着的历史博物馆，能让你在喧嚣的时代里找到那份穿越千年的定力。城墙下的听风，肉夹馍的香气，都是你灵魂的慰藉。" },
+            { city: "南京", vibeTags: ["文雅", "怀旧", "沉静", "梧桐", "故事", "内敛"], desc: "你偏爱有故事感的慢节奏，是一个怀旧且深情的人。南京那种润物无声的文化氛围，能让你在每一个转角、每一株梧桐树下，实现温和而坚定的自我修行。你不争不抢，自有力量。" }
+        ],
+        "E": [
+            { city: "杭州", vibeTags: ["灵动", "温润", "雅致", "平衡", "数字", "山水"], desc: "你追求一种得体的、恰到好处的美感。杭州这种既有互联网的跃动活力，又不失江南婉约山水的气质，是你灵魂最舒适的栖息地。你既能适应快节奏的创新，也能在西湖边找到片刻的宁静，这是你独有的平衡术。" },
+            { city: "青岛", vibeTags: ["爽朗", "开阔", "欧陆", "海鲜", "啤酒", "自在"], desc: "你热爱生活也热爱自然，追求某种开阔的秩序。青岛独特的欧陆风情与海滨城市特有的爽朗感，能给你提供最适合放慢脚步、自在呼吸的空间。哈啤酒吃蛤蜊，这种直给的快乐，最对你的胃口。" }
+        ]
+    };
+
+    let step = 0;
+    let scores = { A:0, B:0, C:0, D:0, E:0 };
+
+    function startQuiz() {
+        document.getElementById('page-cover').classList.remove('active');
+        document.getElementById('page-quiz').classList.add('active');
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const q = questions[step];
+        const displayNum = step + 1 < 10 ? '0' + (step + 1) : (step + 1);
+        document.getElementById('curr-num').innerText = displayNum;
+        document.getElementById('p-bar').style.width = ((step + 1) / 36 * 100) + '%';
+        document.getElementById('q-text').innerText = q.q;
+
+        const container = document.getElementById('opt-list');
+        container.innerHTML = '';
+        q.opts.forEach(opt => {
+            const btn = document.createElement('div');
+            btn.className = 'opt-btn';
+            btn.innerText = opt.t;
+            btn.onclick = () => {
+                scores[opt.s]++;
+                if(step < 35) {
+                    step++;
+                    renderQuestion();
+                } else {
+                    showResult();
+                }
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    function showResult() {
+        let maxDim = 'A';
+        for (let dim in scores) {
+            if (scores[dim] > scores[maxDim]) maxDim = dim;
+        }
+
+        const cityPool = cityData[maxDim];
+        const res = cityPool[Math.floor(Math.random() * cityPool.length)];
+        
+        // 主分数
+        const randomScore = Math.floor(Math.random() * (99 - 85 + 1)) + 85;
+
+        document.getElementById('res-score').innerText = randomScore + "%";
+        document.getElementById('res-city').innerText = res.city;
+        document.getElementById('res-reason').innerText = res.desc;
+
+        // 标签渲染
+        const tagsContainer = document.getElementById('res-tags-container');
+        tagsContainer.innerHTML = '';
+        res.vibeTags.forEach(tag => {
+            const tagEl = document.createElement('div');
+            tagEl.className = 'res-tag-pill';
+            tagEl.innerText = tag;
+            tagsContainer.appendChild(tagEl);
+        });
+
+        // --- 核心更新：生成2个备选城市 ---
+        // 1. 扁平化所有城市
+        let allCities = [];
+        for (let key in cityData) {
+            allCities = allCities.concat(cityData[key]);
+        }
+        
+        // 2. 剔除已选中的主城市
+        const remainingCities = allCities.filter(c => c.city !== res.city);
+        
+        // 3. 随机打乱并取前2个
+        remainingCities.sort(() => Math.random() - 0.5);
+        const alternatives = remainingCities.slice(0, 2);
+
+        // 4. 渲染备选城市列表
+        const altContainer = document.getElementById('alt-cities-list');
+        altContainer.innerHTML = '';
+        
+        alternatives.forEach((alt, index) => {
+            // 生成递减的假分数 (主分数 - 3% ~ 5% 的梯度)
+            const altScore = randomScore - (index * 3) - Math.floor(Math.random() * 3) - 2;
+            
+            const div = document.createElement('div');
+            div.className = 'alt-item';
+            div.innerHTML = `
+                <div class="alt-left">
+                    <span class="alt-name">${alt.city}</span>
+                    <span class="alt-tag">${alt.vibeTags[0]}</span>
+                </div>
+                <span class="alt-score">${altScore}%</span>
+            `;
+            altContainer.appendChild(div);
+        });
+
+        document.getElementById('page-quiz').classList.remove('active');
+        document.getElementById('page-result').classList.add('active');
+    }
+</script>
+
+</body></html>

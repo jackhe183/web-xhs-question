@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title id="headTitle">加载中...</title>
+    <meta property="og:title" id="ogTitle" content="">
+    <style>
+        /* ==================== CSS变量 - 主题色配置 ==================== */
+        :root {
+            --primary: #ff6b35;
+            --secondary: #ee4d2d;
+            --bg-start: #fff5f0;
+            --bg-mid: #ffe8dc;
+            --bg-end: #ffd9c8;
+            --text-dark: #1a1a1a;
+            --text-gray: #666;
+            --text-light: #999;
+            --white: #ffffff;
+            --shadow: 0 8px 30px rgba(255, 107, 53, 0.15);
+            --shadow-hover: 0 12px 40px rgba(255, 107, 53, 0.25);
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --light-bg: rgba(255,255,255,0.9);
+            --tag-bg: rgba(255, 107, 53, 0.1);
+            --input-border: rgba(255, 107, 53, 0.2);
+            --input-focus-shadow: rgba(255, 107, 53, 0.1);
+        }
+
+        /* ==================== 基础样式 ==================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; overflow-x: hidden; }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-mid) 50%, var(--bg-end) 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page { display: none; width: 100%; animation: fadeIn 0.4s ease-out; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .btn-main {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--white);
+            border: none;
+            padding: 16px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            width: 80%;
+            max-width: 300px;
+            display: block;
+            margin: 0 auto;
+        }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+        .btn-main:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .password-page { text-align: center; background: var(--light-bg); padding: 40px 20px; border-radius: 20px; box-shadow: var(--shadow); }
+        .password-inputs { display: flex; justify-content: center; gap: 10px; margin: 24px 0; }
+        .password-input {
+            width: 50px; height: 60px; border: 2px solid var(--input-border); border-radius: 12px;
+            font-size: 24px; text-align: center; background: var(--white); outline: none; transition: 0.2s;
+        }
+        .password-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--input-focus-shadow); }
+        .error-message { color: var(--secondary); font-size: 14px; margin-top: 16px; min-height: 20px; opacity: 0; transition: 0.3s; }
+
+        .cover-page { text-align: center; padding: 40px 20px; background: var(--light-bg); border-radius: 20px; box-shadow: var(--shadow); }
+        .cover-icon { font-size: 70px; margin-bottom: 20px; animation: heartbeat 1.5s infinite; }
+        @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .cover-title { font-size: 32px; color: var(--text-dark); margin-bottom: 10px; }
+        .cover-subtitle { color: var(--primary); font-weight: bold; margin-bottom: 20px; }
+        .cover-description { color: var(--text-gray); line-height: 1.6; margin-bottom: 30px; font-size: 14px; }
+
+        .quiz-page { width: 100%; }
+        .progress-header { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-gray); margin-bottom: 8px; }
+        .progress-bar { width: 100%; height: 6px; background: var(--input-border); border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); width: 0%; transition: width 0.4s ease; }
+        .question-card { background: var(--white); border-radius: 20px; padding: 30px 20px; box-shadow: var(--shadow); transition: 0.3s; }
+        .question-text { font-size: 20px; font-weight: 600; color: var(--text-dark); margin-bottom: 24px; line-height: 1.4; }
+        .option-button {
+            width: 100%; background: var(--white); border: 1.5px solid var(--input-border);
+            padding: 16px; font-size: 15px; color: var(--text-dark); border-radius: 12px;
+            cursor: pointer; text-align: left; margin-bottom: 12px; transition: 0.2s; outline: none;
+        }
+        .option-button:hover { border-color: var(--primary); background: var(--bg-start); }
+
+        .result-card { background: var(--white); border-radius: 20px; padding: 40px 20px; box-shadow: var(--shadow); text-align: center; }
+        .match-percentage { font-size: 60px; font-weight: 800; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; }
+        .result-type-name { font-size: 26px; color: var(--text-dark); margin: 15px 0; font-weight: bold; }
+        .tags-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 24px; }
+        .tag { background: var(--tag-bg); color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .detail-analysis { background: #fafafa; border-radius: 12px; padding: 20px; text-align: left; margin-bottom: 24px; font-size: 14px; line-height: 1.6; }
+        .detail-label { font-weight: bold; color: var(--primary); }
+        .result-description { font-size: 14px; color: #555; text-align: justify; line-height: 1.7; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- 密码页面 -->
+        <div class="page active" id="passwordPage">
+            <div class="password-page">
+                <div id="authIcon" style="font-size: 50px; margin-bottom: 15px;">🔐</div>
+                <h2 id="authTitle">输入密码解锁</h2>
+                <p id="authHint" style="color:#888; font-size:12px; margin-top:5px;"></p>
+                <div class="password-inputs">
+                    <input type="text" class="password-input" maxlength="1" inputmode="numeric" autofocus>
+                    <input type="text" class="password-input" maxlength="1" inputmode="numeric">
+                    <input type="text" class="password-input" maxlength="1" inputmode="numeric">
+                    <input type="text" class="password-input" maxlength="1" inputmode="numeric">
+                </div>
+                <button class="btn-main" id="passwordSubmit" disabled>确认进入</button>
+                <div class="error-message" id="errorMessage"></div>
+            </div>
+        </div>
+
+        <!-- 封面页 -->
+        <div class="page" id="coverPage">
+            <div class="cover-page">
+                <div id="uiCoverIcon" class="cover-icon"></div>
+                <h1 id="uiCoverTitle" class="cover-title"></h1>
+                <p id="uiCoverSubtitle" class="cover-subtitle"></p>
+                <p id="uiCoverDesc" class="cover-description"></p>
+                <button class="btn-main" id="startQuiz"></button>
+            </div>
+        </div>
+
+        <!-- 答题页 -->
+        <div class="page" id="quizPage">
+            <div class="quiz-page">
+                <div class="progress-header">
+                    <span id="questionNumber">问题 1/3</span>
+                    <span id="progressPercentage" style="color:var(--primary); font-weight:bold;">0%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                <div class="question-card" id="questionCard">
+                    <div class="question-text" id="questionText"></div>
+                    <div id="optionsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 结果页 -->
+        <div class="page" id="resultPage">
+            <div class="result-card">
+                <div style="font-size: 12px; color:#999; margin-bottom: 5px;" id="resultLabel"></div>
+                <div class="match-percentage" id="matchPercentage"></div>
+                <h2 class="result-type-name" id="resultTypeName"></h2>
+                <div class="tags-container" id="tagsContainer"></div>
+
+                <div class="detail-analysis">
+                    <p><span class="detail-label" id="matchLabel"></span><span id="bestMatch"></span></p>
+                    <p style="margin-top: 10px;"><span class="detail-label" id="challengeLabel"></span><span id="potentialChallenge"></span></p>
+                </div>
+
+                <div class="result-description" id="resultDescription"></div>
+                <button class="btn-main" id="restartQuiz"></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== APP_CONFIG - 情感测试主题配置 ====================
+        // 👇 只需要修改这里面的内容，就可以换成其他主题！
+        const APP_CONFIG = {
+            // ========== 1. 主题配色（控制整个页面的颜色） ==========
+            theme: {
+                primaryColor: '#ff6b35',      // 主色：活力橙
+                secondaryColor: '#ee4d2d',    // 辅色：热情红
+                bgStart: '#fff5f0',           // 背景渐变起始色
+                bgMid: '#ffe8dc',             // 背景渐变中间色
+                bgEnd: '#ffd9c8',             // 背景渐变结束色
+                iconEmoji: '💕'               // 封面图标
+            },
+
+            // ========== 2. 页面文案（控制所有显示的文字） ==========
+            content: {
+                pageTitle: '发现你的情感人格类型',
+                authTitle: '输入密码解锁',
+                passwordHint: '密码为 4 位数字 (演示密码: 1234)',
+                passwordBtn: '确认进入',
+                passwordError: '密码错误，请重试',
+                coverTitle: '发现你的情感人格类型',
+                coverSubtitle: '已有一万人找到自己的爱情模式',
+                coverDesc: '通过专业的情感心理学分析，探索你在感情中的真实模样，找到最适合你的爱情表达方式。',
+                startBtn: '开始测试',
+                questionPrefix: '问题',
+                progressText: '答题进度',
+                resultLabel: '综合匹配度',
+                matchLabel: '最佳匹配：',
+                challengeLabel: '潜在挑战：',
+                restartBtn: '再测一次'
+            },
+
+            // ========== 3. 业务数据 ==========
+            password: '1234',  // 访问密码
+
+            // 题目数据（3道题）
+            questions: [
+                {
+                    q: '当遇到心动对象时，你会？',
+                    opts: [
+                        { t: '主动出击，直接表达好感', scores: { A: 3, B: 1, C: 0, D: 2 } },
+                        { t: '默默关注，等待时机', scores: { A: 0, B: 3, C: 1, D: 2 } },
+                        { t: '通过朋友侧面了解', scores: { A: 1, B: 2, C: 3, D: 0 } },
+                        { t: '保持理智，观察再决定', scores: { A: 0, B: 1, C: 3, D: 2 } }
+                    ]
+                },
+                {
+                    q: '你对感情的理想状态是？',
+                    opts: [
+                        { t: '轰轰烈烈，充满激情', scores: { A: 3, B: 0, C: 0, D: 1 } },
+                        { t: '细水长流，温暖陪伴', scores: { A: 0, B: 3, C: 1, D: 0 } },
+                        { t: '彼此独立，互相尊重', scores: { A: 0, B: 1, C: 1, D: 3 } },
+                        { t: '稳定可靠，有共同规划', scores: { A: 0, B: 1, C: 3, D: 1 } }
+                    ]
+                },
+                {
+                    q: '你如何表达爱意？',
+                    opts: [
+                        { t: '直接说出口，不吝啬表达', scores: { A: 3, B: 1, C: 0, D: 0 } },
+                        { t: '通过细心照顾和陪伴', scores: { A: 0, B: 3, C: 0, D: 1 } },
+                        { t: '用实际行动和付出', scores: { A: 1, B: 1, C: 3, D: 0 } },
+                        { t: '尊重对方，给予空间', scores: { A: 0, B: 1, C: 0, D: 3 } }
+                    ]
+                }
+            ],
+
+            // 结果类型（4种情感人格类型）
+            resultTypes: {
+                "A": {
+                    typeName: "热烈浪漫型",
+                    tags: ["主动", "热情", "表达", "勇敢", "浪漫"],
+                    bestMatch: "温柔陪伴型（可以平衡你的热烈，给予稳定的情感支持）",
+                    potentialChallenge: "可能在长期关系中难以保持激情，容易产生审美疲劳",
+                    desc: "你是一个敢爱敢恨的人，在感情中从不吝啬表达自己的情感。你相信爱情应该是热烈而直接的，追求心动的感觉和浪漫的体验。你的真诚和勇敢让人感受到爱的温度，你的热情能够点燃整个关系。"
+                },
+                "B": {
+                    typeName: "温柔陪伴型",
+                    tags: ["细腻", "陪伴", "体贴", "耐心", "温暖"],
+                    bestMatch: "理性分析型（可以给你安全感和方向感）",
+                    potentialChallenge: "可能过于迁就对方，忽略自己的需求",
+                    desc: "你相信细水长流的感情，懂得用细腻的心思去经营关系。你擅长倾听和陪伴，能够敏锐地察觉到对方的情感需求。你的温柔体贴让伴侣感受到家的温暖。"
+                },
+                "C": {
+                    typeName: "理性分析型",
+                    tags: ["理性", "观察", "谨慎", "稳定", "深沉"],
+                    bestMatch: "热烈浪漫型（可以为你的生活带来激情和活力）",
+                    potentialChallenge: "可能过于理性，忽略了情感交流的重要性",
+                    desc: "你在感情中保持清醒的头脑，善于分析和规划。你重视关系的稳定性和未来可能性，会用实际行动去维护感情。你的靠谱和稳重给人安全感。"
+                },
+                "D": {
+                    typeName: "自由灵魂型",
+                    tags: ["独立", "自由", "真实", "随性", "真诚"],
+                    bestMatch: "温柔陪伴型（可以给你理解和支持，不过分束缚）",
+                    potentialChallenge: "可能被误解为不够投入，需要平衡独立与亲密",
+                    desc: "你追求平等与尊重的关系，认为每个人都应该保持独立的自我。你随性自然，不喜欢被束缚，相信真正的爱是让彼此都成为更好的人。"
+                }
+            }
+        };
+
+        // ==================== 主题引擎 - 核心代码（不需要修改） ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化主题和文案
+            function initEngine() {
+                const config = APP_CONFIG;
+                const root = document.documentElement;
+
+                // 设置CSS变量（控制整个页面的颜色）
+                root.style.setProperty('--primary', config.theme.primaryColor);
+                root.style.setProperty('--secondary', config.theme.secondaryColor);
+                root.style.setProperty('--bg-start', config.theme.bgStart);
+                root.style.setProperty('--bg-mid', config.theme.bgMid);
+                root.style.setProperty('--bg-end', config.theme.bgEnd);
+
+                // 设置页面文案（控制所有显示的文字）
+                document.getElementById('headTitle').textContent = config.content.pageTitle;
+                document.getElementById('ogTitle').content = config.content.pageTitle;
+                document.getElementById('authIcon').textContent = '🔐';
+                document.getElementById('authTitle').textContent = config.content.authTitle;
+                document.getElementById('authHint').textContent = config.content.passwordHint;
+                document.getElementById('passwordSubmit').textContent = config.content.passwordBtn;
+                document.getElementById('errorMessage').textContent = config.content.passwordError;
+                document.getElementById('uiCoverIcon').textContent = config.theme.iconEmoji;
+                document.getElementById('uiCoverTitle').textContent = config.content.coverTitle;
+                document.getElementById('uiCoverSubtitle').textContent = config.content.coverSubtitle;
+                document.getElementById('uiCoverDesc').textContent = config.content.coverDesc;
+                document.getElementById('startQuiz').textContent = config.content.startBtn;
+                document.getElementById('resultLabel').textContent = config.content.resultLabel;
+                document.getElementById('matchLabel').textContent = config.content.matchLabel;
+                document.getElementById('challengeLabel').textContent = config.content.challengeLabel;
+                document.getElementById('restartQuiz').textContent = config.content.restartBtn;
+            }
+
+            initEngine();
+
+            // ==================== 状态变量 ====================
+            let currentQuestion = 0;
+            let userScores = { A: 0, B: 0, C: 0, D: 0 };
+
+            // ==================== 工具函数 ====================
+            function showPage(pageId) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById(pageId).classList.add('active');
+            }
+
+            // ==================== 密码验证 ====================
+            const inputs = document.querySelectorAll('.password-input');
+            const submitBtn = document.getElementById('passwordSubmit');
+            const errorMsg = document.getElementById('errorMessage');
+
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    if (this.value && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                    const allFilled = Array.from(inputs).every(inp => inp.value !== '');
+                    submitBtn.disabled = !allFilled;
+                });
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && !this.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+            });
+
+            submitBtn.addEventListener('click', function() {
+                const pwd = Array.from(inputs).map(inp => inp.value).join('');
+                if (pwd === APP_CONFIG.password) {
+                    errorMsg.style.opacity = '0';
+                    showPage('coverPage');
+                } else {
+                    errorMsg.style.opacity = '1';
+                    inputs.forEach(inp => inp.value = '');
+                    inputs[0].focus();
+                    submitBtn.disabled = true;
+                }
+            });
+
+            // ==================== 开始测试 ====================
+            document.getElementById('startQuiz').addEventListener('click', function() {
+                currentQuestion = 0;
+                userScores = { A: 0, B: 0, C: 0, D: 0 };
+
+                const card = document.getElementById('questionCard');
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+
+                showPage('quizPage');
+                renderQuestion();
+            });
+
+            // ==================== 渲染题目 ====================
+            function renderQuestion() {
+                const questions = APP_CONFIG.questions;
+                const content = APP_CONFIG.content;
+
+                if (!questions || questions.length === 0 || currentQuestion >= questions.length) {
+                    console.error('题目数据错误');
+                    return;
+                }
+
+                const q = questions[currentQuestion];
+                if (!q || !q.q || !q.opts) {
+                    console.error('题目数据格式错误：', q);
+                    return;
+                }
+
+                document.getElementById('questionNumber').textContent = `${content.questionPrefix} ${currentQuestion + 1}/${questions.length}`;
+                const progress = ((currentQuestion) / questions.length) * 100;
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('progressPercentage').textContent = Math.round(progress) + '%';
+                document.getElementById('questionText').textContent = q.q;
+
+                const optionsBox = document.getElementById('optionsList');
+                optionsBox.innerHTML = '';
+                q.opts.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-button';
+                    btn.textContent = opt.t;
+                    btn.onclick = function() { handleSelect(opt.scores); };
+                    optionsBox.appendChild(btn);
+                });
+            }
+
+            // ==================== 处理选择 ====================
+            function handleSelect(scores) {
+                for (let type in scores) {
+                    userScores[type] += scores[type];
+                }
+
+                const card = document.getElementById('questionCard');
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(10px)';
+
+                setTimeout(function() {
+                    if (currentQuestion < APP_CONFIG.questions.length - 1) {
+                        currentQuestion++;
+                        renderQuestion();
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    } else {
+                        calculateResult();
+                    }
+                }, 300);
+            }
+
+            // ==================== 计算结果 ====================
+            function calculateResult() {
+                const resultTypes = APP_CONFIG.resultTypes;
+                let maxType = 'A';
+                for (let type in userScores) {
+                    if (userScores[type] > userScores[maxType]) maxType = type;
+                }
+
+                const result = resultTypes[maxType];
+                const matchPercent = Math.floor(Math.random() * 15) + 85;
+
+                document.getElementById('matchPercentage').textContent = matchPercent + '%';
+                document.getElementById('resultTypeName').textContent = result.typeName;
+                document.getElementById('bestMatch').textContent = result.bestMatch;
+                document.getElementById('potentialChallenge').textContent = result.potentialChallenge;
+                document.getElementById('resultDescription').textContent = result.desc;
+
+                const tagsBox = document.getElementById('tagsContainer');
+                tagsBox.innerHTML = '';
+                result.tags.forEach(tag => {
+                    const span = document.createElement('span');
+                    span.className = 'tag';
+                    span.textContent = tag;
+                    tagsBox.appendChild(span);
+                });
+
+                showPage('resultPage');
+            }
+
+            // ==================== 重新测试 ====================
+            document.getElementById('restartQuiz').addEventListener('click', function() {
+                currentQuestion = 0;
+                userScores = { A: 0, B: 0, C: 0, D: 0 };
+                document.getElementById('progressFill').style.width = '0%';
+                document.getElementById('progressPercentage').textContent = '0%';
+
+                const card = document.getElementById('questionCard');
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+
+                showPage('coverPage');
+            });
+        });
+    </script>
+</body>
+</html>

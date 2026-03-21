@@ -1,0 +1,366 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta property="og:title" content="发现你的天选之城" />
+    <meta property="og:description" content="发现你的天选之城" />
+    <meta
+      property="og:image"
+      content="//public/thumbnails/69758d5b53ace4a187c60b6e/thumbnail.png"
+    />
+    <title>发现你的天选之城</title>
+    <style>
+      /* 基础样式 */
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* iframe样式 */
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+      }
+
+      /* 密码输入容器 */
+      .password-container {
+        width: 100%;
+        max-width: 500px;
+        text-align: center;
+        padding: 40px 20px;
+      }
+
+      /* 标题 */
+      .project-title {
+        font-size: 36px;
+        font-weight: 600;
+        color: #303133;
+        margin-bottom: 16px;
+      }
+
+      /* 提示文字 */
+      .password-hint {
+        font-size: 16px;
+        color: #606266;
+        margin-bottom: 40px;
+      }
+
+      /* 密码输入区域 */
+      .password-input-section {
+        margin-top: 30px;
+      }
+
+      /* 密码输入框组 */
+      .digit-group {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 30px;
+      }
+
+      /* 单个密码输入框 */
+      .digit-input {
+        width: 50px;
+        height: 60px;
+        border: 1px solid #dcdfe6;
+        border-radius: 8px;
+        font-size: 24px;
+        text-align: center;
+        background-color: white;
+        transition: all 0.3s;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+      }
+
+      /* 选中输入框效果 */
+      .digit-input:focus {
+        border-color: #409eff;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+      }
+
+      /* 错误提示 */
+      .error-message {
+        color: #f56c6c;
+        font-size: 14px;
+        margin-top: 16px;
+        display: none;
+      }
+
+      /* 显示错误信息 */
+      .error-message.show {
+        display: block;
+      }
+
+      /* 按钮样式 */
+      .submit-button {
+        padding: 12px 24px;
+        background-color: #409eff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .submit-button:hover {
+        background-color: #337ecc;
+      }
+
+      .submit-button:disabled {
+        background-color: #a0cfff;
+        cursor: not-allowed;
+      }
+
+      /* 辅助提示文本 */
+      .help-text {
+        font-size: 12px;
+        color: #909399;
+        margin-top: 16px;
+      }
+      .download-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #409eff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 15px;
+        font-size: 14px;
+        cursor: pointer;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        z-index: 9999;
+        transition: all 0.3s;
+      }
+
+      .download-button:hover {
+        background-color: #66b1ff;
+      }
+
+      .download-button i {
+        margin-right: 5px;
+      }
+
+      /* 分享按钮样式 */
+      .share-button {
+        position: fixed;
+        bottom: 20px;
+        right: 90px;
+        background-color: #07c160;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 15px;
+        font-size: 14px;
+        cursor: pointer;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        z-index: 9999;
+        transition: all 0.3s;
+      }
+
+      .share-button:hover {
+        background-color: #06ad56;
+      }
+
+      .share-button i {
+        margin-right: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <div class="password-container">
+      <h1 class="project-title">已锁定项目</h1>
+      <p class="password-hint">需要密码才能查看此创作</p>
+
+      <div class="password-input-section">
+        <div class="digit-group">
+          <input
+            type="text"
+            id="digit-1"
+            class="digit-input"
+            maxlength="1"
+            autofocus
+          />
+          <input type="text" id="digit-2" class="digit-input" maxlength="1" />
+          <input type="text" id="digit-3" class="digit-input" maxlength="1" />
+          <input type="text" id="digit-4" class="digit-input" maxlength="1" />
+        </div>
+
+        <button id="passwordButton" class="submit-button" disabled>解锁</button>
+
+        <p id="errorMessage" class="error-message">密码错误，请重试</p>
+        <p class="help-text">提示：密码为四位数字，请向项目创建者索取</p>
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // 密码输入处理
+        const digitInputs = document.querySelectorAll(".digit-input");
+        const submitButton = document.getElementById("passwordButton");
+        const errorMessage = document.getElementById("errorMessage");
+        const projectId = "69758d5b53ace4a187c60b6e";
+        const domain = "html2web.com";
+        const fulldomain = "www.html2web.com";
+        const allowDownload = "false";
+        // 自动聚焦到下一个输入框
+        digitInputs.forEach((input, index) => {
+          input.addEventListener("input", function () {
+            // 检查是否是数字
+            if (!/^\d*$/.test(this.value)) {
+              this.value = "";
+              return;
+            }
+
+            // 填充后自动切换到下一个输入框
+            if (this.value && index < digitInputs.length - 1) {
+              digitInputs[index + 1].focus();
+            }
+
+            // 检查是否所有位置都已填写
+            checkAllDigits();
+          });
+
+          // 处理删除键
+          input.addEventListener("keydown", function (e) {
+            if (e.key === "Backspace" && !this.value && index > 0) {
+              digitInputs[index - 1].focus();
+            }
+          });
+        });
+
+        // 检查所有数字是否已输入
+        function checkAllDigits() {
+          let isComplete = true;
+          let password = "";
+
+          digitInputs.forEach((input) => {
+            if (!input.value) {
+              isComplete = false;
+            }
+            password += input.value;
+          });
+
+          // 启用/禁用提交按钮
+          submitButton.disabled = !isComplete;
+
+          return password;
+        }
+
+        // 提交密码
+        submitButton.addEventListener("click", function () {
+          const password = checkAllDigits();
+          submitButton.disabled = true;
+
+          // 调用后端API验证密码
+          fetch(`//${fulldomain}/api/verify-password/${projectId}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ password }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                // 密码正确，加载iframe内容
+                errorMessage.classList.remove("show");
+
+                // 将验证成功的密码保存到本地存储，避免用户刷新页面后再次输入
+                try {
+                  localStorage.setItem(
+                    `project_password_${projectId}`,
+                    password
+                  );
+                } catch (e) {
+                  console.error("无法保存密码到本地存储", e);
+                }
+                var html =
+                  '<iframe id="projectFrame" src="//' +
+                  fulldomain +
+                  "/view/" +
+                  projectId +
+                  "?password=" +
+                  password +
+                  '" allow="microphone; camera" frameborder="0" width="100%" height="100%"></iframe>';
+                document.body.innerHTML = html;
+              } else {
+                // 密码错误，显示错误信息
+                errorMessage.classList.add("show");
+
+                // 清空所有输入框并聚焦到第一个
+                digitInputs.forEach((input) => {
+                  input.value = "";
+                });
+                digitInputs[0].focus();
+                submitButton.disabled = false;
+              }
+            })
+            .catch((error) => {
+              console.error("验证密码时出错:", error);
+              errorMessage.textContent = "验证过程中发生错误，请稍后重试";
+              errorMessage.classList.add("show");
+              submitButton.disabled = false;
+            });
+        });
+
+        // 检查本地存储中是否有之前验证成功的密码
+        try {
+          const savedPassword = localStorage.getItem(
+            `project_password_${projectId}`
+          );
+          if (savedPassword) {
+            // 自动验证已保存的密码
+            fetch(`//${fulldomain}/api/verify-password/${projectId}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ password: savedPassword }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  // 密码正确，加载iframe内容
+                  var html =
+                    '<iframe id="projectFrame" src="//' +
+                    fulldomain +
+                    "/view/" +
+                    projectId +
+                    "?password=" +
+                    savedPassword +
+                    '" allow="microphone; camera" frameborder="0" width="100%" height="100%"></iframe>';
+                  document.body.innerHTML = html;
+                }
+              })
+              .catch((error) => {
+                console.error("验证已保存密码时出错:", error);
+                // 验证失败时不显示错误，等待用户手动输入
+              });
+          }
+        } catch (e) {
+          console.error("无法访问本地存储", e);
+        }
+      });
+    </script>
+    
+  </body>
+</html>
