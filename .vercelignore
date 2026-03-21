@@ -1,0 +1,16 @@
+# Vercel部署时忽略的文件
+
+# Claude相关
+.claude
+
+# 归档文件
+archive/
+v1_archive/
+
+# 文档
+CLAUDE.md
+
+# 临时文件
+*.log
+.DS_Store
+Thumbs.db

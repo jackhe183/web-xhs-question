@@ -91,13 +91,124 @@
 ```
 web-xhs-question/
 ├── index.html          # 主页面（包含所有功能）
+├── v2_themes/          # 主题模板文件夹
+├── docker-compose.yml  # Docker编排配置
+├── Dockerfile          # Docker镜像构建
+├── vercel.json         # Vercel部署配置
+├── nginx.conf          # Nginx服务器配置
 ├── README.md           # 项目说明文档
 ├── CLAUDE.md           # 工作记忆文档
 └── archive/            # 归档文件夹
-    ├── 发现你的天选之城.html
-    ├── 发现你的天选之城_files/
-    └── fontend.txt
 ```
+
+## 快速部署
+
+### 方式一：Vercel 部署（推荐，5分钟免费上线）⭐
+
+#### 1. 注册并导入项目
+1. 访问 [Vercel](https://vercel.com) 并使用 GitHub 登录
+2. 点击 "New Project" → "Import Git Repository"
+3. 选择 `jackhe183/web-xhs-question` 仓库
+4. 点击 "Import"
+
+#### 2. 配置部署
+- Project Name: `emotion-quiz`（可自定义）
+- Framework Preset: `Other`
+- Build Command: （留空）
+- Output Directory: （留空）
+
+#### 3. 部署
+点击 "Deploy" 按钮，等待约1分钟即可获得：
+```
+https://emotion-quiz.vercel.app
+```
+
+#### 4. 更新代码
+```bash
+git add .
+git commit -m "更新内容"
+git push
+# Vercel 自动检测并重新部署
+```
+
+---
+
+### 方式二：Docker 本地运行
+
+#### 前置要求
+安装 Docker Desktop（Windows/Mac）或 Docker Engine（Linux）
+
+#### 快速启动
+```bash
+# 进入项目目录
+cd web-xhs-question
+
+# 使用 docker-compose 启动
+docker-compose up -d
+
+# 访问测试
+# 浏览器打开: http://localhost:8080
+```
+
+#### 常用命令
+```bash
+# 查看运行状态
+docker-compose ps
+
+# 查看日志
+docker-compose logs -f
+
+# 停止服务
+docker-compose down
+
+# 重新构建
+docker-compose up -d --build
+```
+
+---
+
+### 方式三：云服务器部署
+
+#### 1. 购买服务器
+推荐配置：
+- 腾讯云轻量应用服务器：68元/年（2核2G）
+- 阿里云ECS：99元/年起
+
+#### 2. 服务器初始化
+```bash
+# SSH连接服务器后执行
+
+# 安装 Docker
+curl -fsSL https://get.docker.com | sh
+
+# 安装 Docker Compose
+sudo apt install docker-compose -y
+
+# 克隆项目
+git clone https://github.com/jackhe183/web-xhs-question.git
+cd web-xhs-question
+
+# 启动服务
+docker-compose up -d
+```
+
+#### 3. 访问网站
+```
+http://你的服务器IP:8080
+```
+
+#### 4. 配置域名（可选）
+在域名DNS设置中添加A记录指向服务器IP即可
+
+---
+
+## 部署方案对比
+
+| 方案 | 时间 | 成本 | 优势 | 适用场景 |
+|------|------|------|------|----------|
+| **Vercel** | 5分钟 | 免费 | 全球CDN、自动HTTPS、自动更新 | 个人项目、快速上线 |
+| **Docker本地** | 2分钟 | 免费 | 完全控制、离线可用 | 本地开发、内网分享 |
+| **云服务器** | 20分钟 | 68-99元/年 | 完全控制、可扩展 | 生产环境、自定义需求 |
 
 ## 自定义修改
 

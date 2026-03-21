@@ -1,0 +1,33 @@
+# Docker部署时忽略的文件和目录
+
+# Git相关
+.git
+.gitignore
+.gitattributes
+
+# Claude相关
+.claude
+
+# 文档（不需要部署到容器）
+README.md
+CLAUDE.md
+*.md
+
+# 归档文件
+archive/
+v1_archive/
+
+# 临时文件
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# IDE配置
+.idea/
+.vscode/
+*.iml
+
+# Node模块（如有）
+node_modules/
+package-lock.json

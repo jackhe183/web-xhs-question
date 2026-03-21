@@ -13,3 +13,11 @@ desktop.ini
 # 临时文件
 *.tmp
 *.temp
+
+# Claude 本地设置（不要提交敏感配置）
+.claude/settings.local.json
+.claude/settings.json
+
+# 归档文件（大体积文件）
+archive/
+v1_archive/
