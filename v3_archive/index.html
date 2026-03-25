@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+    ===============================================
+    v3.0 主题测试引擎 - 主文件
+    ===============================================
+
+    【重要提示】
+    本文件是引擎核心代码，通常不需要修改！
+
+    要创建新主题或修改内容，请编辑 config.js 文件。
+
+    【文档导航】
+    - QUICKSTART.md          - 快速入门指南（推荐！）
+    - THEME_SWITCH_GUIDE.md  - 主题切换教程
+    - README.md              - 架构说明文档
+
+    【架构】
+    HTML引擎 + 外部config.js 配置文件
+    ===============================================
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title id="headTitle">加载中...</title>
+    <meta property="og:title" id="ogTitle" content="">
+
+    <!-- 极致温柔浪漫版 - 外部依赖 -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        /* ==================== CSS变量 - 小红书粉紫配色 ==================== */
+        :root {
+            /* 小红书粉紫配色 */
+            --primary: #FF9EBA;
+            --secondary: #FFB6D9;
+            --accent: #FF8A9B;
+            --bg-start: #FFF5F8;
+            --bg-mid: #FFE4EC;
+            --bg-end: #FFD1DC;
+            --text-dark: #2D2D2D;
+            --text-gray: #999999;
+            --text-light: #BBBBBB;
+            --white: #FFFFFF;
+
+            /* 极致温柔浪漫 - 新增配色 */
+            --romantic-pink: #FFD6E8;
+            --soft-rose: #FFE0E9;
+            --deep-blush: #DE6FA1;
+            --warm-coral: #FF9F85;
+            --star-gold: #FFD700;
+            --moon-silver: #E8E8E8;
+
+            /* 渐变定义 */
+            --gradient-primary: linear-gradient(135deg, #FF9EBA 0%, #FFB6D9 100%);
+            --gradient-romantic: linear-gradient(135deg, #FFD6E8 0%, #FFE0E9 100%);
+            --gradient-glow: radial-gradient(circle, rgba(255, 154, 186, 0.3) 0%, transparent 70%);
+
+            /* 毛玻璃卡片效果 */
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --glass-shadow: 0 8px 32px rgba(255, 154, 186, 0.15);
+
+            /* 阴影 */
+            --shadow: 0 8px 32px rgba(255, 154, 186, 0.15);
+            --shadow-hover: 0 12px 40px rgba(255, 154, 186, 0.25);
+
+            /* 圆角 */
+            --radius-card: 24px;
+            --radius-btn: 50px;
+            --radius-tag: 20px;
+            --radius-input: 16px;
+
+            /* 过渡 */
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* 其他 */
+            --light-bg: rgba(255, 255, 255, 0.9);
+            --tag-bg: rgba(255, 154, 186, 0.12);
+            --input-border: rgba(255, 154, 186, 0.25);
+            --input-focus-shadow: rgba(255, 154, 186, 0.15);
+            --progress-bg: rgba(255, 154, 186, 0.12);
+        }
+
+        /* ==================== 基础样式 ==================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            overflow-x: hidden;
+        }
+
+        body {
+            background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-mid) 50%, var(--bg-end) 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* ==================== 背景装饰元素（小红书风格） ==================== */
+        .bg-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .decoration-heart {
+            position: absolute;
+            font-size: 28px;
+            opacity: 0.25;
+            animation: floatHeart 8s ease-in-out infinite;
+            filter: drop-shadow(0 2px 8px rgba(255, 154, 186, 0.2));
+        }
+
+        .decoration-star {
+            position: absolute;
+            font-size: 20px;
+            opacity: 0.2;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes floatHeart {
+            0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+            25% { transform: translateY(-15px) rotate(5deg) scale(1.05); }
+            50% { transform: translateY(-25px) rotate(0deg) scale(1); }
+            75% { transform: translateY(-15px) rotate(-5deg) scale(1.05); }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.2); }
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page { display: none; width: 100%; animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .page.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==================== 毛玻璃卡片样式 ==================== */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-card);
+            box-shadow: var(--glass-shadow);
+        }
+
+        /* ==================== 按钮样式（小红书风格） ==================== */
+        .btn-main {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--white);
+            border: none;
+            padding: 17px 45px;
+            font-size: 17px;
+            font-weight: 600;
+            border-radius: var(--radius-btn);
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255, 154, 186, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 80%;
+            max-width: 300px;
+            display: block;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-main::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(255, 154, 186, 0.4);
+        }
+
+        .btn-main:hover::before {
+            left: 100%;
+        }
+
+        .btn-main:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .btn-main:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ==================== 密码页面 ==================== */
+        .password-page {
+            text-align: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 40px 24px;
+            border-radius: var(--radius-card);
+            box-shadow: var(--glass-shadow);
+        }
+
+        .password-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 26px 0;
+        }
+
+        .password-input {
+            width: 54px;
+            height: 64px;
+            border: 2px solid var(--input-border);
+            border-radius: var(--radius-input);
+            font-size: 26px;
+            text-align: center;
+            background: var(--white);
+            outline: none;
+            transition: all 0.25s ease;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .password-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--input-focus-shadow);
+            transform: scale(1.05);
+        }
+
+        .error-message {
+            color: var(--accent);
+            font-size: 14px;
+            margin-top: 18px;
+            min-height: 22px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        /* ==================== 封面页面 ==================== */
+        .cover-page {
+            text-align: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 45px 24px;
+            border-radius: var(--radius-card);
+            box-shadow: var(--glass-shadow);
+        }
+
+        .cover-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+            animation: heartbeat 1.6s ease-in-out infinite;
+            filter: drop-shadow(0 4px 12px rgba(255, 154, 186, 0.3));
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.08); }
+            35% { transform: scale(0.95); }
+            45% { transform: scale(1.02); }
+            55% { transform: scale(0.98); }
+        }
+
+        .cover-title {
+            font-size: 28px;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .cover-subtitle {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 22px;
+            font-size: 16px;
+        }
+
+        .cover-description {
+            color: var(--text-gray);
+            line-height: 1.7;
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+
+        /* ==================== 答题页面 ==================== */
+        .quiz-page { width: 100%; }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--text-gray);
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--progress-bg);
+            border-radius: 12px;
+            margin-bottom: 26px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(255, 154, 186, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(255, 154, 186, 0.3);
+        }
+
+        .question-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-card);
+            padding: 32px 22px;
+            box-shadow: var(--glass-shadow);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 26px;
+            line-height: 1.5;
+            letter-spacing: -0.2px;
+        }
+
+        .option-button {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(255, 154, 186, 0.2);
+            padding: 17px 20px;
+            font-size: 15px;
+            color: var(--text-dark);
+            border-radius: 16px;
+            cursor: pointer;
+            text-align: left;
+            margin-bottom: 14px;
+            transition: all 0.25s ease;
+            outline: none;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-button::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+            transform: scaleY(0);
+            transition: transform 0.25s ease;
+        }
+
+        .option-button:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: var(--primary);
+            transform: translateX(8px);
+            box-shadow: 0 4px 16px rgba(255, 154, 186, 0.15);
+        }
+
+        .option-button:hover::before {
+            transform: scaleY(1);
+        }
+
+        .option-button:active {
+            transform: translateX(4px) scale(0.98);
+        }
+
+        /* ==================== 结果页面 ==================== */
+        .result-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-card);
+            padding: 40px 24px;
+            box-shadow: var(--glass-shadow);
+            text-align: center;
+        }
+
+        .result-icon {
+            font-size: 72px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 4px 16px rgba(255, 154, 186, 0.25));
+        }
+
+        .result-type-name {
+            font-size: 26px;
+            color: var(--text-dark);
+            margin: 16px 0;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 26px;
+        }
+
+        .tag {
+            background: linear-gradient(135deg, rgba(255, 154, 186, 0.15) 0%, rgba(255, 182, 217, 0.15) 100%);
+            color: var(--primary);
+            padding: 8px 18px;
+            border-radius: var(--radius-tag);
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(255, 154, 186, 0.12);
+            border: 1px solid rgba(255, 154, 186, 0.2);
+        }
+
+        /* ==================== 详细分析区块 ==================== */
+        .detail-section {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 18px;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .detail-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 154, 186, 0.12);
+        }
+
+        .detail-section-title {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 15px;
+            letter-spacing: -0.2px;
+        }
+
+        .detail-section-content {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.75;
+        }
+
+        /* 优势/风险/建议 特殊样式 */
+        .advantage-box {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, rgba(34, 197, 94, 0.03) 100%);
+            border-left: 4px solid #22c55e;
+        }
+
+        .risk-box {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.03) 100%);
+            border-left: 4px solid #ef4444;
+        }
+
+        .suggestion-box {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0.03) 100%);
+            border-left: 4px solid #f59e0b;
+        }
+
+        .disclaimer {
+            font-size: 12px;
+            color: var(--text-gray);
+            margin-top: 24px;
+            opacity: 0.7;
+        }
+
+        /* ==================== 极致温柔浪漫版 - 新增样式 ==================== */
+
+        /* 动态装饰增强 - 漂浮爱心从底部上升 */
+        @keyframes floatUpHeart {
+            0% { transform: translateY(100vh) rotate(0deg) scale(0.5); opacity: 0; }
+            10%, 90% { opacity: 0.3; }
+            100% { transform: translateY(-100px) rotate(360deg) scale(1); opacity: 0; }
+        }
+
+        /* 闪烁星星增强 */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 0.6; transform: scale(1.2); }
+        }
+
+        /* 光晕脉冲背景 */
+        @keyframes glowPulse {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.2); opacity: 0.5; }
+        }
+
+        /* 浮动标签动画 */
+        @keyframes floatTag {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        /* 标签浮动效果 */
+        .tag {
+            animation: floatTag 3s ease-in-out infinite;
+        }
+        .tag:nth-child(2) { animation-delay: 0.5s; }
+        .tag:nth-child(3) { animation-delay: 1s; }
+        .tag:nth-child(4) { animation-delay: 1.5s; }
+        .tag:nth-child(5) { animation-delay: 2s; }
+
+        /* ==================== 新结果页面 - 垂直流动海报布局 ==================== */
+        .result-card-new {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-card);
+            padding: 32px 20px;
+            box-shadow: var(--glass-shadow);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 结果页光晕背景 */
+        .result-card-new::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            background: var(--gradient-glow);
+            border-radius: 50%;
+            animation: glowPulse 4s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Lottie动画容器 */
+        .result-icon-lottie {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 结果类型名称增强 */
+        .result-type-name-new {
+            font-size: 24px;
+            color: var(--text-dark);
+            margin: 12px 0 16px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            position: relative;
+            z-index: 1;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ==================== SVG环形进度条 ==================== */
+        .score-ring-container {
+            margin: 20px auto 24px;
+            position: relative;
+            width: 140px;
+            height: 140px;
+            z-index: 1;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-bg {
+            fill: none;
+            stroke: rgba(255, 154, 186, 0.15);
+            stroke-width: 8;
+        }
+
+        .progress-ring-fill {
+            fill: none;
+            stroke: url(#scoreGradient);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .score-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .score-number {
+            font-size: 32px;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 11px;
+            color: var(--text-gray);
+            margin-top: 4px;
+            display: block;
+        }
+
+        /* ==================== 核心洞察卡片 ==================== */
+        .core-insight-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 18px;
+            padding: 18px 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .core-insight-title {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .core-insight-text {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.7;
+        }
+
+        /* ==================== 手风琴折叠详情 ==================== */
+        .accordion-section {
+            margin: 20px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .accordion-item {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .accordion-header {
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .accordion-icon {
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        .accordion-title {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .accordion-arrow {
+            font-size: 12px;
+            color: var(--text-gray);
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-item.active .accordion-arrow {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease;
+        }
+
+        .accordion-item.active .accordion-content {
+            max-height: 300px;
+            padding: 0 18px 16px 44px;
+        }
+
+        .accordion-content-text {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.75;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .accordion-item.active .accordion-content-text {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 手风琴类型样式 */
+        .accordion-item.advantage .accordion-icon { color: #22c55e; }
+        .accordion-item.risk .accordion-icon { color: #ef4444; }
+        .accordion-item.suggestion .accordion-icon { color: #f59e0b; }
+
+        /* ==================== 下载分享按钮 ==================== */
+        .download-section {
+            margin-top: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .download-btn {
+            background: var(--gradient-primary);
+            color: var(--white);
+            border: none;
+            padding: 14px 32px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: var(--radius-btn);
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255, 154, 186, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 154, 186, 0.4);
+        }
+
+        .download-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .download-btn:hover::before {
+            left: 100%;
+        }
+
+        .download-btn.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .download-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            right: 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== 隐藏的分享卡片 ==================== */
+        #shareCardHidden {
+            position: fixed;
+            top: -9999px;
+            left: -9999px;
+            width: 540px;
+            height: 960px;
+            background: linear-gradient(180deg, #FFF5F8 0%, #FFE4EC 50%, #FFD1DC 100%);
+            padding: 40px 30px;
+            box-sizing: border-box;
+        }
+
+        .share-card-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .share-card-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 16px;
+        }
+
+        .share-card-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2D2D2D;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #FF9EBA 0%, #FFB6D9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .share-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .share-card-tag {
+            background: linear-gradient(135deg, rgba(255, 154, 186, 0.15) 0%, rgba(255, 182, 217, 0.15) 100%);
+            color: #FF9EBA;
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 154, 186, 0.2);
+        }
+
+        .share-card-score {
+            text-align: center;
+            margin: 24px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+        }
+
+        .share-card-score-number {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FF9EBA 0%, #FFB6D9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .share-card-score-label {
+            font-size: 14px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .share-card-insight {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .share-card-insight-title {
+            font-size: 14px;
+            color: #FF9EBA;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .share-card-insight-text {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .share-card-footer {
+            text-align: center;
+            margin-top: auto;
+            padding-top: 40px;
+        }
+
+        .share-card-footer-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #FF9EBA;
+            margin-bottom: 8px;
+        }
+
+        .share-card-footer-sub {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 装饰元素 */
+        .share-decoration {
+            position: absolute;
+            font-size: 24px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景装饰元素（小红书风格） -->
+    <div class="bg-decoration">
+        <span class="decoration-heart" style="top: 8%; left: 5%;">💕</span>
+        <span class="decoration-star" style="top: 15%; right: 8%; animation-delay: 0.5s;">✨</span>
+        <span class="decoration-heart" style="top: 55%; left: 8%; animation-delay: 1.5s; font-size: 22px;">💗</span>
+        <span class="decoration-star" style="top: 70%; right: 6%; animation-delay: 1s;">💫</span>
+        <span class="decoration-heart" style="top: 85%; left: 15%; animation-delay: 2s; font-size: 20px;">🎀</span>
+        <span class="decoration-star" style="top: 40%; right: 12%; animation-delay: 1.8s;">⭐</span>
+        <span class="decoration-heart" style="top: 30%; left: 12%; animation-delay: 0.8s; font-size: 18px;">💖</span>
+    </div>
+
+    <div class="main-container">
+        <!-- 密码页面 -->
+        <div class="page active" id="passwordPage">
+            <div class="password-page glass-card">
+                <div id="authIcon" style="font-size: 50px; margin-bottom: 15px;">🔐</div>
+                <h2 id="authTitle">输入密码解锁</h2>
+                <p id="authHint" style="color:#888; font-size:12px; margin-top:5px;"></p>
+                <div class="password-inputs">
+                    <input type="text" class="password-input" maxlength="1" inputmode="numeric" autofocus>
+                    <input type="text" class="password-input" maxlength="1" inputmode="numeric">
+                    <input type="text" class="password-input" maxlength="1" inputmode="numeric">
+                    <input type="text" class="password-input" maxlength="1" inputmode="numeric">
+                </div>
+                <button class="btn-main" id="passwordSubmit" disabled>确认进入</button>
+                <div class="error-message" id="errorMessage"></div>
+            </div>
+        </div>
+
+        <!-- 封面页 -->
+        <div class="page" id="coverPage">
+            <div class="cover-page glass-card">
+                <div id="uiCoverIcon" class="cover-icon"></div>
+                <h1 id="uiCoverTitle" class="cover-title"></h1>
+                <p id="uiCoverSubtitle" class="cover-subtitle"></p>
+                <p id="uiCoverDesc" class="cover-description"></p>
+                <button class="btn-main" id="startQuiz"></button>
+            </div>
+        </div>
+
+        <!-- 答题页 -->
+        <div class="page" id="quizPage">
+            <div class="quiz-page">
+                <div class="progress-header">
+                    <span id="questionNumber">问题 1/20</span>
+                    <span id="progressPercentage" style="color:var(--primary); font-weight:bold;">0%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                <div class="question-card" id="questionCard">
+                    <div class="question-text" id="questionText"></div>
+                    <div id="optionsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 结果页 - 极致温柔浪漫版 - 垂直流动海报布局 -->
+        <div class="page" id="resultPage">
+            <div class="result-card-new">
+                <!-- SVG渐变定义 -->
+                <svg style="position: absolute; width: 0; height: 0;">
+                    <defs>
+                        <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FF9EBA"/>
+                            <stop offset="100%" stop-color="#FFB6D9"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+
+                <!-- 第1层：动态图标 -->
+                <div class="result-icon-lottie" id="resultIconLottie"></div>
+
+                <!-- 第2层：类型名称 + 浮动标签云 -->
+                <h2 class="result-type-name-new" id="resultTypeName"></h2>
+                <div class="tags-container" id="tagsContainer"></div>
+
+                <!-- 第3层：分数可视化 - SVG环形进度条 -->
+                <div class="score-ring-container">
+                    <svg class="progress-ring" width="140" height="140">
+                        <circle class="progress-ring-bg" cx="70" cy="70" r="60"/>
+                        <circle class="progress-ring-fill" id="scoreRingFill" cx="70" cy="70" r="60"
+                                stroke-dasharray="377" stroke-dashoffset="377"/>
+                    </svg>
+                    <div class="score-text">
+                        <span class="score-number" id="attractionScore">0</span>
+                        <span class="score-label">吸引力指数</span>
+                    </div>
+                </div>
+
+                <!-- 第4层：核心洞察卡片 -->
+                <div class="core-insight-card">
+                    <div class="core-insight-title">💫 核心原因</div>
+                    <div class="core-insight-text" id="coreReason"></div>
+                </div>
+
+                <!-- 第5层：手风琴详情块 -->
+                <div class="accordion-section">
+                    <div class="accordion-item advantage">
+                        <div class="accordion-header">
+                            <span class="accordion-icon">✨</span>
+                            <span class="accordion-title">吸引优势</span>
+                            <span class="accordion-arrow">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-content-text" id="advantages"></div>
+                        </div>
+                    </div>
+                    <div class="accordion-item risk">
+                        <div class="accordion-header">
+                            <span class="accordion-icon">⚠️</span>
+                            <span class="accordion-title">潜在风险</span>
+                            <span class="accordion-arrow">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-content-text" id="risks"></div>
+                        </div>
+                    </div>
+                    <div class="accordion-item suggestion">
+                        <div class="accordion-header">
+                            <span class="accordion-icon">💡</span>
+                            <span class="accordion-title">改善建议</span>
+                            <span class="accordion-arrow">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-content-text" id="suggestions"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 下载分享按钮 -->
+                <div class="download-section">
+                    <button class="download-btn" id="downloadShareBtn">
+                        <span>📥</span>
+                        <span>保存分享图片</span>
+                    </button>
+                </div>
+
+                <button class="btn-main" id="restartQuiz" style="margin-top: 20px;"></button>
+                <div class="disclaimer">本测试仅供娱乐参考</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 隐藏的分享卡片模板 -->
+    <div id="shareCardHidden">
+        <span class="share-decoration" style="top: 30px; left: 30px;">💕</span>
+        <span class="share-decoration" style="top: 50px; right: 40px;">✨</span>
+        <span class="share-decoration" style="top: 120px; left: 50px;">🎀</span>
+        <span class="share-decoration" style="bottom: 100px; right: 30px;">💫</span>
+
+        <div class="share-card-header">
+            <div class="share-card-icon" id="shareIconContainer"></div>
+            <div class="share-card-title" id="shareTitle"></div>
+            <div class="share-card-tags" id="shareTags"></div>
+        </div>
+
+        <div class="share-card-score">
+            <div class="share-card-score-number" id="shareScore"></div>
+            <div class="share-card-score-label">吸引力指数</div>
+        </div>
+
+        <div class="share-card-insight">
+            <div class="share-card-insight-title">💫 核心原因</div>
+            <div class="share-card-insight-text" id="shareInsight"></div>
+        </div>
+
+        <div class="share-card-footer">
+            <div class="share-card-footer-text">"你会吸引哪种另一半"测试</div>
+            <div class="share-card-footer-sub">扫码测测你会吸引谁</div>
+        </div>
+    </div>
+
+    <!-- 外部配置文件 - 真正分离的架构 -->
+    <script src="config.js"></script>
+
+    <!-- 主题引擎核心代码 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // ==================== 初始化引擎 ====================
+            function initEngine() {
+                if (typeof APP_CONFIG === 'undefined') {
+                    console.error('配置文件加载失败，请检查 config.js 是否存在');
+                    alert('配置加载失败，请刷新页面重试');
+                    return;
+                }
+
+                const config = APP_CONFIG;
+                const root = document.documentElement;
+
+                // 设置CSS变量（控制整个页面的颜色）
+                root.style.setProperty('--primary', config.theme.primaryColor);
+                root.style.setProperty('--secondary', config.theme.secondaryColor);
+                root.style.setProperty('--bg-start', config.theme.bgStart);
+                root.style.setProperty('--bg-mid', config.theme.bgMid);
+                root.style.setProperty('--bg-end', config.theme.bgEnd);
+
+                // 设置页面文案
+                document.getElementById('headTitle').textContent = config.content.pageTitle;
+                document.getElementById('ogTitle').content = config.content.pageTitle;
+                document.getElementById('authIcon').textContent = '🔐';
+                document.getElementById('authTitle').textContent = config.content.authTitle;
+                document.getElementById('authHint').textContent = config.content.passwordHint;
+                document.getElementById('passwordSubmit').textContent = config.content.passwordBtn;
+                document.getElementById('errorMessage').textContent = config.content.passwordError;
+                document.getElementById('uiCoverIcon').textContent = config.theme.iconEmoji;
+                document.getElementById('uiCoverTitle').textContent = config.content.coverTitle;
+                document.getElementById('uiCoverSubtitle').textContent = config.content.coverSubtitle;
+                document.getElementById('uiCoverDesc').textContent = config.content.coverDesc;
+                document.getElementById('startQuiz').textContent = config.content.startBtn;
+                document.getElementById('restartQuiz').textContent = config.content.restartBtn;
+            }
+
+            initEngine();
+
+            // ==================== 状态变量 ====================
+            let currentQuestion = 0;
+            let userScores = { A: 0, B: 0, C: 0, D: 0, E: 0 };
+
+            // ==================== 工具函数 ====================
+            function showPage(pageId) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById(pageId).classList.add('active');
+            }
+
+            // ==================== 密码验证 ====================
+            const inputs = document.querySelectorAll('.password-input');
+            const submitBtn = document.getElementById('passwordSubmit');
+            const errorMsg = document.getElementById('errorMessage');
+
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    if (this.value && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                    const allFilled = Array.from(inputs).every(inp => inp.value !== '');
+                    submitBtn.disabled = !allFilled;
+                });
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && !this.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+            });
+
+            submitBtn.addEventListener('click', function() {
+                const pwd = Array.from(inputs).map(inp => inp.value).join('');
+                if (pwd === APP_CONFIG.password) {
+                    errorMsg.style.opacity = '0';
+                    showPage('coverPage');
+                } else {
+                    errorMsg.style.opacity = '1';
+                    inputs.forEach(inp => inp.value = '');
+                    inputs[0].focus();
+                    submitBtn.disabled = true;
+                }
+            });
+
+            // ==================== 开始测试 ====================
+            document.getElementById('startQuiz').addEventListener('click', function() {
+                currentQuestion = 0;
+                userScores = { A: 0, B: 0, C: 0, D: 0, E: 0 };
+
+                const card = document.getElementById('questionCard');
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+
+                showPage('quizPage');
+                renderQuestion();
+            });
+
+            // ==================== 渲染题目 ====================
+            function renderQuestion() {
+                const questions = APP_CONFIG.questions;
+                const content = APP_CONFIG.content;
+
+                if (!questions || questions.length === 0 || currentQuestion >= questions.length) {
+                    console.error('题目数据错误');
+                    return;
+                }
+
+                const q = questions[currentQuestion];
+                if (!q || !q.q || !q.opts) {
+                    console.error('题目数据格式错误：', q);
+                    return;
+                }
+
+                document.getElementById('questionNumber').textContent = `${content.questionPrefix} ${currentQuestion + 1}/${questions.length}`;
+                const progress = ((currentQuestion) / questions.length) * 100;
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('progressPercentage').textContent = Math.round(progress) + '%';
+                document.getElementById('questionText').textContent = q.q;
+
+                const optionsBox = document.getElementById('optionsList');
+                optionsBox.innerHTML = '';
+                q.opts.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-button';
+                    btn.textContent = opt.t;
+                    btn.onclick = function() { handleSelect(opt.scores); };
+                    optionsBox.appendChild(btn);
+                });
+            }
+
+            /**
+             * 处理用户选项点击
+             * @param {Object} scores - 本选项的分数映射 {A:2, B:1, ...}
+             *
+             * 功能说明：
+             * 1. 将选项的分数累加到 userScores
+             * 2. 触发问题卡片淡出动画
+             * 3. 延迟300ms后：
+             *    - 如果不是最后一题：渲染下一题
+             *    - 如果是最后一题：调用 calculateResult()
+             */
+            function handleSelect(scores) {
+                // 累加各类型分数
+                for (let type in scores) {
+                    if (userScores.hasOwnProperty(type)) {
+                        userScores[type] += scores[type];
+                    }
+                }
+
+                const card = document.getElementById('questionCard');
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(10px)';
+
+                setTimeout(function() {
+                    if (currentQuestion < APP_CONFIG.questions.length - 1) {
+                        currentQuestion++;
+                        renderQuestion();
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    } else {
+                        calculateResult();
+                    }
+                }, 300);
+            }
+
+            // ==================== 极致温柔浪漫版 - 新增功能 ====================
+
+            /**
+             * 触发粒子庆祝特效
+             *
+             * 功能说明：
+             * 1. 从屏幕左右两侧同时发射彩色粒子
+             * 2. 粒子颜色从配置文件 APP_CONFIG.animations.confetti.colors 读取
+             * 3. 持续时间由 confetti.duration 控制（默认3000ms）
+             * 4. 使用 requestAnimationFrame 实现流畅动画循环
+             *
+             * 依赖：canvas-confetti 库
+             */
+            function triggerConfetti() {
+                if (typeof confetti === 'undefined') {
+                    console.warn('canvas-confetti 未加载');
+                    return;
+                }
+
+                // 从配置文件读取粒子特效配置
+                const confettiConfig = APP_CONFIG.animations?.confetti || {};
+                const colors = confettiConfig.colors || ['#FF9EBA', '#FFB6D9', '#FFD1DC'];
+                const duration = confettiConfig.duration || 3000;
+                const particleCount = confettiConfig.particleCount || 5;
+                const spread = confettiConfig.spread || 55;
+
+                const end = Date.now() + duration;
+
+                (function frame() {
+                    // 左侧发射 - 粒子特效
+                    confetti({
+                        particleCount: particleCount,
+                        angle: 60,
+                        spread: spread,
+                        origin: { x: 0 },
+                        colors: colors,
+                        shapes: ['circle'],
+                        scalar: 0.8
+                    });
+                    // 右侧发射 - 粒子特效
+                    confetti({
+                        particleCount: particleCount,
+                        angle: 120,
+                        spread: spread,
+                        origin: { x: 1 },
+                        colors: colors,
+                        shapes: ['circle'],
+                        scalar: 0.8
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            }
+
+            /**
+             * 加载Lottie动画图标
+             * @param {string} resultType - 结果类型（A/B/C/D/E）
+             *
+             * 功能说明：
+             * 1. 从配置文件 APP_CONFIG.animations.lottieUrls 读取对应类型的动画URL
+             * 2. 如果Lottie库加载成功且URL有效，则加载Lottie动画
+             * 3. 否则使用CSS动画（heartbeat）作为降级方案
+             *
+             * 依赖：bodymovin/lottie 库
+             */
+            function loadLottieAnimation(resultType) {
+                const container = document.getElementById('resultIconLottie');
+                if (!container) return;
+
+                // 从配置文件读取Lottie动画URL
+                const animationUrl = APP_CONFIG.animations?.lottieUrls?.[resultType];
+
+                if (typeof lottie !== 'undefined' && animationUrl) {
+                    container.innerHTML = ''; // 清空容器
+                    lottie.loadAnimation({
+                        container: container,
+                        renderer: 'svg',
+                        loop: true,
+                        autoplay: true,
+                        path: animationUrl
+                    });
+                } else {
+                    // 降级：使用CSS动画
+                    container.innerHTML = '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 80px; animation: heartbeat 1.6s ease-in-out infinite;">💫</div>';
+                }
+            }
+
+            /**
+             * 启动SVG环形进度条动画
+             * @param {number} score - 吸引力分数（0-100）
+             *
+             * 功能说明：
+             * 1. 通过改变 SVG circle 的 stroke-dashoffset 属性实现环形进度动画
+             * 2. 周长计算公式：2 × π × r（r 从 uiConfig 读取，默认60）
+             * 3. 偏移量计算：周长 - (分数 / 100) × 周长
+             * 4. 同时触发数字滚动动画，使用 easeOutQuart 缓动函数
+             *
+             * 动画时长：1500ms
+             * 延迟启动：300ms（等待结果页显示）
+             */
+            function animateScoreRing(score) {
+                const ring = document.getElementById('scoreRingFill');
+                const scoreText = document.getElementById('attractionScore');
+
+                if (!ring || !scoreText) return;
+
+                // 计算环形进度条周长：2 × π × r（r从配置读取，默认60）
+                const uiConfig = APP_CONFIG.ui?.scoreRing || { radius: 60 };
+                const circumference = 2 * Math.PI * uiConfig.radius; // ≈ 377
+                const offset = circumference - (score / 100) * circumference;
+
+                // 延迟触发动画
+                setTimeout(() => {
+                    ring.style.strokeDashoffset = offset;
+                }, 300);
+
+                // 数字滚动动画
+                let currentScore = 0;
+                const duration = 1500;
+                const increment = score / (duration / 16);
+                const startTime = Date.now();
+
+                function updateScore() {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+
+                    // easeOutQuart缓动
+                    const easeProgress = 1 - Math.pow(1 - progress, 4);
+                    currentScore = Math.round(score * easeProgress);
+
+                    scoreText.textContent = currentScore;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(updateScore);
+                    }
+                }
+                updateScore();
+            }
+
+            // 4. 手风琴折叠初始化
+            function initAccordion() {
+                const headers = document.querySelectorAll('.accordion-header');
+                headers.forEach(header => {
+                    header.addEventListener('click', function() {
+                        const item = this.parentElement;
+                        const isActive = item.classList.contains('active');
+
+                        // 关闭所有其他项
+                        document.querySelectorAll('.accordion-item').forEach(i => {
+                            i.classList.remove('active');
+                        });
+
+                        // 切换当前项
+                        if (!isActive) {
+                            item.classList.add('active');
+                        }
+                    });
+                });
+            }
+
+            /**
+             * 生成并下载分享图片
+             * @param {Object} result - 结果数据对象
+             *
+             * 功能说明：
+             * 1. 填充隐藏的分享卡片模板（#shareCardHidden）
+             * 2. 使用 html2canvas 将DOM转换为canvas
+             * 3. 配置参数从 shareImage 读取（width、height、quality）
+             * 4. 转换为JPEG格式并触发下载
+             *
+             * 依赖：html2canvas 库
+             * 输出：JPEG图片，默认540×960px，质量0.8
+             */
+            function downloadShareImage(result) {
+                const btn = document.getElementById('downloadShareBtn');
+                if (!btn) return;
+
+                btn.addEventListener('click', async function() {
+                    if (btn.classList.contains('loading')) return;
+
+                    btn.classList.add('loading');
+
+                    try {
+                        // 填充分享卡片内容
+                        const shareCard = document.getElementById('shareCardHidden');
+                        const iconContainer = document.getElementById('shareIconContainer');
+                        const shareTitle = document.getElementById('shareTitle');
+                        const shareTags = document.getElementById('shareTags');
+                        const shareScore = document.getElementById('shareScore');
+                        const shareInsight = document.getElementById('shareInsight');
+
+                        // 读取分数计算配置
+                        const scoringConfig = APP_CONFIG.scoring || { maxQuestions: 20, maxScorePerQuestion: 3 };
+                        const maxPossibleScore = scoringConfig.maxQuestions * scoringConfig.maxScorePerQuestion;
+
+                        // 设置内容
+                        shareTitle.textContent = result.typeName;
+                        shareScore.textContent = Math.round((result.maxScore / maxPossibleScore) * 100);
+                        shareInsight.textContent = result.coreReason;
+
+                        // 设置图标（使用简单emoji）
+                        iconContainer.innerHTML = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 80px;">${result.icon || '💫'}</div>`;
+
+                        // 设置标签
+                        shareTags.innerHTML = '';
+                        (result.tags || []).forEach(tag => {
+                            const span = document.createElement('span');
+                            span.className = 'share-card-tag';
+                            span.textContent = tag;
+                            shareTags.appendChild(span);
+                        });
+
+                        // 从配置读取分享图片参数
+                        const shareConfig = APP_CONFIG.shareImage || { width: 540, height: 960, quality: 0.8, format: 'image/jpeg' };
+
+                        // 生成图片
+                        if (typeof html2canvas !== 'undefined') {
+                            const canvas = await html2canvas(shareCard, {
+                                width: shareConfig.width,
+                                height: shareConfig.height,
+                                scale: 2,
+                                useCORS: true,
+                                backgroundColor: '#FFF5F8',
+                                logging: false
+                            });
+
+                            canvas.toBlob(function(blob) {
+                                const url = URL.createObjectURL(blob);
+                                const link = document.createElement('a');
+                                link.download = '你会吸引哪种另一半_' + result.typeName + '.jpg';
+                                link.href = url;
+                                link.click();
+                                URL.revokeObjectURL(url);
+                                btn.classList.remove('loading');
+                            }, shareConfig.format, shareConfig.quality);
+                        } else {
+                            alert('图片生成功能暂不可用');
+                            btn.classList.remove('loading');
+                        }
+                    } catch (error) {
+                        console.error('生成图片失败：', error);
+                        btn.classList.remove('loading');
+                    }
+                });
+            }
+
+            /**
+             * 计算并展示测试结果
+             *
+             * 功能说明：
+             * 1. 遍历 userScores 找出得分最高的结果类型
+             * 2. 计算吸引力分数：(用户得分 / 最大可能得分) × 100
+             *    - 最大可能得分 = 题目数 × 每题最高分（从 scoring 配置读取）
+             *    - 默认：20题 × 3分 = 60分
+             * 3. 渲染结果页内容（类型名称、标签、核心原因等）
+             * 4. 触发一系列特效：粒子爆炸 → Lottie动画 → 环形进度条 → 手风琴初始化
+             * 5. 绑定下载分享图片功能
+             */
+            function calculateResult() {
+                const resultTypes = APP_CONFIG.resultTypes;
+                let maxType = 'A';
+                let maxScore = 0;
+
+                for (let type in userScores) {
+                    if (userScores[type] > maxScore) {
+                        maxScore = userScores[type];
+                        maxType = type;
+                    }
+                }
+
+                const result = resultTypes[maxType];
+                if (!result) {
+                    console.error('结果类型不存在：', maxType);
+                    return;
+                }
+
+                // 计算吸引力分数
+                // 公式：(用户得分 / 最大可能得分) × 100
+                // 最大可能得分 = 题目数 × 每题最高分（从配置读取）
+                const scoringConfig = APP_CONFIG.scoring || { maxQuestions: 20, maxScorePerQuestion: 3 };
+                const maxPossibleScore = scoringConfig.maxQuestions * scoringConfig.maxScorePerQuestion; // 60
+                const attractionScore = Math.round((maxScore / maxPossibleScore) * 100);
+
+                // 显示类型名称
+                document.getElementById('resultTypeName').textContent = result.typeName;
+
+                // 显示标签
+                const tagsBox = document.getElementById('tagsContainer');
+                tagsBox.innerHTML = '';
+                (result.tags || []).forEach(tag => {
+                    const span = document.createElement('span');
+                    span.className = 'tag';
+                    span.textContent = tag;
+                    tagsBox.appendChild(span);
+                });
+
+                // 显示核心原因
+                document.getElementById('coreReason').textContent = result.coreReason || '';
+
+                // 显示吸引优势
+                document.getElementById('advantages').textContent = result.advantages || '';
+
+                // 显示潜在风险
+                document.getElementById('risks').textContent = result.risks || '';
+
+                // 显示改善建议
+                document.getElementById('suggestions').textContent = result.suggestions || '';
+
+                // 显示结果页
+                showPage('resultPage');
+
+                // 新增：触发庆祝特效
+                setTimeout(() => triggerConfetti(), 300);
+
+                // 新增：加载Lottie动画
+                setTimeout(() => loadLottieAnimation(maxType), 400);
+
+                // 新增：启动分数环形动画
+                setTimeout(() => animateScoreRing(attractionScore), 500);
+
+                // 新增：初始化手风琴折叠
+                initAccordion();
+
+                // 新增：设置下载分享功能
+                result.maxScore = maxScore; // 保存分数用于生成图片
+                downloadShareImage(result);
+            }
+
+            // ==================== 重新测试 ====================
+            document.getElementById('restartQuiz').addEventListener('click', function() {
+                currentQuestion = 0;
+                userScores = { A: 0, B: 0, C: 0, D: 0, E: 0 };
+                document.getElementById('progressFill').style.width = '0%';
+                document.getElementById('progressPercentage').textContent = '0%';
+
+                const card = document.getElementById('questionCard');
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+
+                showPage('coverPage');
+            });
+        });
+    </script>
+</body>
+</html>

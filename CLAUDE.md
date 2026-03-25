@@ -5,9 +5,89 @@
 创建一个情感人格测试问卷网页，基于"发现你的天选之城"架构，改为情感主题，采用活力橙红配色方案。
 
 **完成时间**：2024年3月21日
-**最后更新**：2026年3月21日 v2.0
+**最后更新**：2026年3月25日 v3.0 架构重构
 
 ## 项目状态 ✅ 已完成并优化
+
+## v3.0 架构重构 - 真正分离的两文件架构（2026-03-25）
+
+### 设计理念
+**HTML引擎 + 外部JS配置**，真正实现配置与代码分离。
+
+### 核心变更
+1. **架构升级**
+   - ✅ `index.html` - 纯净的HTML引擎（移除内嵌APP_CONFIG）
+   - ✅ `config.js` - 外部配置文件（通过 `<script src="config.js"></script>` 引用）
+   - ✅ 结果页支持详细展示：核心原因、优势、风险、建议
+
+2. **代码解耦改进（2026-03-25更新）**
+   - ✅ 新增 `animations` 配置节：Lottie动画URL、粒子特效配置
+   - ✅ 新增 `scoring` 配置节：分数计算规则
+   - ✅ 新增 `shareImage` 配置节：分享图片参数
+   - ✅ 新增 `ui` 配置节：UI组件尺寸配置
+   - ✅ 所有硬编码值迁移到配置文件
+   - ✅ 关键函数添加完整注释（JSDoc风格）
+   - ✅ 创建 `THEME_SWITCH_GUIDE.md` 主题切换指南
+
+3. **紫色神秘风主题**
+   - ✅ 主色：#9b59b6（神秘紫）
+   - ✅ 辅色：#8e44ad（深邃紫）
+   - ✅ 图标：💫（星光）
+
+4. **数据内容**
+   - ✅ 20道精选题目（从33题题库精选）
+   - ✅ 5种伴侣类型：情绪依赖型、成熟稳定型、自由理性型、渣感型、控制型
+
+### 文件位置
+```
+v3_archive/
+├── index.html              # 主引擎（支持外部config.js）
+├── config.js               # 主题配置文件（9个配置节）
+├── QUICKSTART.md           # 📌 快速入门指南（AI接手首选）
+├── THEME_SWITCH_GUIDE.md   # 主题切换详细教程
+└── README.md               # 架构说明文档
+```
+
+### 使用方法
+1. 打开 `v3_archive/index.html`
+2. 输入密码（默认：1234）
+3. 开始测试
+
+### 创建新主题
+只需修改 `config.js` 中的配置即可：
+- 修改 `theme` 可换肤
+- 修改 `content` 可换文案
+- 修改 `questions` 可换题目
+- 修改 `resultTypes` 可换结果类型
+
+### 设计理念
+**一个网页 = 一个测试场景**，移除所有非核心功能。
+
+### 核心变更
+1. **移除的功能**
+   - ❌ 多主题切换器
+   - ❌ 测试历史记录
+   - ❌ 历史记录面板
+   - ❌ 复杂的免责声明
+   - ❌ 分享按钮组中的"复制链接"
+
+2. **优化的功能**
+   - ✅ 图片生成优化：540x960 尺寸（从 1080x1920 降低）
+   - ✅ JPEG 质量 0.7（从 1.0 降低）
+   - ✅ 预期文件大小：300-500KB（从 2-5MB 降低）
+   - ✅ 简化声明：结果页底部一行"本测试仅供娱乐参考"
+
+3. **保留的功能**
+   - ✅ 20道情感测试题目
+   - ✅ 4种人格类型结果
+   - ✅ 密码保护系统
+   - ✅ 响应式设计
+   - ✅ 生成分享图功能
+
+### 文件位置
+`v3_archive/emotion_test_v3.html`
+
+---
 
 ## v2.0 发布 - 可复用主题引擎（2026-03-21）
 
@@ -30,11 +110,13 @@
 ### 文件结构
 ```
 web-xhs-question/
-├── index.html              # 当前：职业测试（金色💼）
+├── index.html              # v2.0 可复用主题引擎版本
 ├── v2_themes/              # v2.0 主题模板文件夹
 │   ├── emotion_test.html   # 情感测试（橙红💕）
 │   ├── career_test.html    # 职业测试（金色💼）
 │   └── README.md           # 使用说明
+├── v3_archive/             # v3.0 简化版归档
+│   └── emotion_test_v3.html # 情感测试简化版
 ├── v1_archive/             # v1.0 归档
 │   └── index_v1_emotion_test.html
 ├── CLAUDE.md               # 工作记忆文档（本文件）
@@ -57,6 +139,13 @@ web-xhs-question/
 | 文件名 | 说明 |
 |--------|------|
 | index.html | v2.0 可复用主题引擎版本 |
+| v3_archive/index.html | v3.0 主引擎（支持外部config.js） |
+| v3_archive/config.js | v3.0 吸引力测试配置（9个配置节） |
+| v3_archive/QUICKSTART.md | 📌 快速入门指南（AI接手首选） |
+| v3_archive/THEME_SWITCH_GUIDE.md | 主题切换详细教程 |
+| v3_archive/README.md | 架构说明文档 |
+| v2_themes/emotion_test.html | v2.0 情感测试版本 |
+| v2_themes/career_test.html | v2.0 职业测试版本 |
 | theme_examples.js | 主题配置示例（4套主题） |
 | CLAUDE.md | 工作记忆文档（本文件） |
 | README.md | 项目说明文档 |
@@ -294,11 +383,109 @@ C:/Users/root/Desktop/web-xhs-question/
 
 ---
 
-**项目状态**：✅ v2.0 可复用版本已发布
-**最后更新**：2026年3月21日
-**核心特性**：配置化主题引擎 + CSS变量换肤
+**项目状态**：✅ v3.0 简化版已发布
+**最后更新**：2026年3月25日
+**核心特性**：简化设计 + 优化的图片生成 + 新增"吸引力测试"
 **当前密码**：1234
 **GitHub仓库**：https://github.com/jackhe183/web-xhs-question
+
+---
+
+## v3.0 新增 - "你会吸引哪种另一半"问卷（2026-03-25）
+
+### 设计理念
+基于紫色神秘风配色，揭示用户最易吸引的伴侣类型。
+
+### 核心特性
+- ✅ 紫色神秘风配色方案（#9b59b6, #8e44ad）
+- ✅ 精选20道题目（从33题题库精选）
+- ✅ 5种伴侣类型结果（情绪依赖型、成熟稳定型、渣感型、控制型、自由理性型）
+- ✅ 完整详细版结果展示（核心原因、优势、风险、改善建议）
+- ✅ 生成分享图功能
+
+### 文件位置
+`v3_archive/attract_type_v3.html`
+
+### 紫色神秘风配色
+```css
+--primary: #9b59b6;          /* 主色调：神秘紫 */
+--secondary: #8e44ad;        /* 辅助色：深邃紫 */
+--accent: #e74c3c;           /* 强调色：激情红（点缀） */
+--bg-start: #f5eef8;         /* 浅紫背景 */
+--bg-mid: #ebdef0;           /* 中紫背景 */
+--bg-end: #d7bde2;           /* 深紫背景 */
+```
+
+### 5种伴侣类型
+| 类型 | 标签 | 核心特征 |
+|------|------|----------|
+| 情绪依赖型 | 高需求、敏感、依赖、缺乏安全感、被动 | 过度需要与过度包容的特质 |
+| 成熟稳定型 | 理性、责任感、稳定、包容、可靠 | 成熟稳重的安全感来源 |
+| 渣感型 | 新鲜感、不羁、忽冷忽热、缺乏责任感、魅力 | 随性不羁的吸引力 |
+| 控制型 | 强势、控制欲、占有欲、主导、固执 | 果断主导的引领力 |
+| 自由理性型 | 独立、理性、自由、松弛感、通透 | 通透独立的松弛感 |
+
+---
+
+## v2.1 更新 - 容器化部署方案（2026-03-21）
+
+---
+
+## v3.0 技术实现细节（2026-03-21）
+
+### 图片生成优化
+```javascript
+// 配置参数
+const CONFIG = {
+    shareImageWidth: 540,   // 从 1080 降至 540
+    shareImageHeight: 960,  // 从 1920 降至 960
+    shareImageQuality: 0.7  // JPEG 质量 0.7
+};
+
+// html2canvas 调用
+html2canvas(container, {
+    width: CONFIG.shareImageWidth,
+    height: CONFIG.shareImageHeight,
+    scale: 1,
+    useCORS: true,
+    logging: false
+}).then(function(canvas) {
+    // 转换为 JPEG，降低质量
+    canvas.toBlob(function(blob) {
+        // 下载逻辑
+    }, 'image/jpeg', CONFIG.shareImageQuality);
+});
+```
+
+### 20道题目结构
+```javascript
+// 简化的题目数据结构
+const QUESTIONS = [
+    {
+        q: '问题文本',
+        opts: [
+            { t: '选项A', scores: { A: 3, B: 1, C: 0, D: 2 } },
+            { t: '选项B', scores: { A: 0, B: 3, C: 1, D: 2 } },
+            { t: '选项C', scores: { A: 1, B: 2, C: 3, D: 0 } },
+            { t: '选项D', scores: { A: 0, B: 1, C: 3, D: 2 } }
+        ]
+    },
+    // ... 共20道题
+];
+```
+
+### 简化的合规声明
+```html
+<!-- 结果页底部一行 -->
+<div class="disclaimer">本测试仅供娱乐参考</div>
+```
+
+### 移除的代码块
+- `<div class="theme-selector">` 及相关 CSS
+- `<button class="history-btn">` 及相关 CSS
+- `<div class="history-panel">` 整个面板
+- `#shareCanvas` 隐藏画布（改用简单方案）
+- 历史记录相关 JS 函数
 
 ---
 
