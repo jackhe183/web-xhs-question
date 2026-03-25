@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>情感人格测试 - 发现你的爱情模式</title>
+    <meta property="og:title" content="情感人格测试 - 发现你的爱情模式">
+    <meta property="og:description" content="专业情感人格测试，探索你的爱情模式和情感需求">
+    <meta property="og:type" content="website">
+    <!-- html2canvas for image generation -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        /* ==================== CSS变量 - 主题色配置 ==================== */
+        :root {
+            --primary: #ff6b35;
+            --secondary: #ee4d2d;
+            --bg-start: #fff0e8;
+            --bg-mid: #ffe8dc;
+            --bg-end: #ffd8cc;
+            --text-dark: #1a1a1a;
+            --text-gray: #666;
+            --text-light: #999;
+            --white: #ffffff;
+            --shadow: 0 8px 30px rgba(255, 107, 53, 0.15);
+            --shadow-hover: 0 12px 40px rgba(255, 107, 53, 0.25);
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --light-bg: rgba(255,255,255,0.9);
+            --tag-bg: rgba(255, 107, 53, 0.1);
+            --input-border: rgba(255, 107, 53, 0.2);
+            --input-focus-shadow: rgba(255, 107, 53, 0.1);
+        }
+
+        /* ==================== 基础样式 ==================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; overflow-x: hidden; }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-mid) 50%, var(--bg-end) 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page { display: none; width: 100%; animation: fadeIn 0.4s ease-out; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 主题选择器 */
+        .theme-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.95);
+            padding: 10px 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .theme-selector select {
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+            padding: 5px;
+            color: var(--text-dark);
+        }
+
+        .btn-main {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--white);
+            border: none;
+            padding: 16px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            width: 80%;
+            max-width: 300px;
+            display: block;
+            margin: 0 auto;
+        }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+        .btn-main:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 12px 30px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+            width: auto;
+            display: inline-block;
+            margin: 5px;
+        }
+        .btn-secondary:hover { background: var(--primary); color: var(--white); }
+
+        .cover-page { text-align: center; background: var(--light-bg); padding: 40px 20px; border-radius: 20px; box-shadow: var(--shadow); }
+        .cover-icon { font-size: 70px; margin-bottom: 20px; animation: heartbeat 1.5s infinite; }
+        @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .cover-title { font-size: 32px; color: var(--text-dark); margin-bottom: 10px; }
+        .cover-subtitle { color: var(--primary); font-weight: bold; margin-bottom: 20px; }
+        .cover-description { color: var(--text-gray); line-height: 1.6; margin-bottom: 30px; font-size: 14px; }
+
+        /* 历史记录按钮 */
+        .history-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 历史记录面板 */
+        .history-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .history-panel.active { display: flex; }
+        .history-content {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        .history-item:hover { background: var(--bg-start); }
+        .history-date { font-size: 12px; color: var(--text-light); }
+        .history-result { font-size: 16px; color: var(--primary); font-weight: bold; }
+
+        .quiz-page { width: 100%; }
+        .progress-header { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-gray); margin-bottom: 8px; }
+        .progress-bar { width: 100%; height: 6px; background: var(--input-border); border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); width: 0%; transition: width 0.4s ease; }
+        .question-card { background: var(--white); border-radius: 20px; padding: 30px 20px; box-shadow: var(--shadow); transition: 0.3s; }
+        .question-text { font-size: 20px; font-weight: 600; color: var(--text-dark); margin-bottom: 24px; line-height: 1.4; }
+        .option-button {
+            width: 100%; background: var(--white); border: 1.5px solid var(--input-border);
+            padding: 16px; font-size: 15px; color: var(--text-dark); border-radius: 12px;
+            cursor: pointer; text-align: left; margin-bottom: 12px; transition: 0.2s; outline: none;
+        }
+        .option-button:hover { border-color: var(--primary); background: var(--bg-start); }
+
+        /* 结果卡片 */
+        .result-card { background: var(--white); border-radius: 20px; padding: 40px 20px; box-shadow: var(--shadow); text-align: center; position: relative; }
+        .match-percentage { font-size: 60px; font-weight: 800; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; }
+        .result-type-name { font-size: 26px; color: var(--text-dark); margin: 15px 0; font-weight: bold; }
+        .tags-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 24px; }
+        .tag { background: var(--tag-bg); color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .detail-analysis { background: #fafafa; border-radius: 12px; padding: 20px; text-align: left; margin-bottom: 24px; font-size: 14px; line-height: 1.6; }
+        .detail-label { font-weight: bold; color: var(--primary); }
+        .result-description { font-size: 14px; color: #555; text-align: justify; line-height: 1.7; margin-bottom: 30px; }
+
+        /* 分享按钮组 */
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* 分享图片生成区域（隐藏） */
+        #shareCanvas {
+            position: fixed;
+            left: -9999px;
+            top: 0;
+            width: 1080px;
+            height: 1920px;
+            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-mid) 50%, var(--bg-end) 100%);
+            z-index: -1;
+        }
+        .share-card {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 60px;
+            box-sizing: border-box;
+        }
+        .share-title {
+            font-size: 72px;
+            font-weight: bold;
+            color: var(--text-dark);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        .share-percentage {
+            font-size: 180px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+        .share-type {
+            font-size: 80px;
+            color: var(--text-dark);
+            margin: 30px 0;
+            font-weight: bold;
+        }
+        .share-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .share-tag {
+            background: var(--tag-bg);
+            color: var(--primary);
+            padding: 15px 40px;
+            border-radius: 40px;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .share-desc {
+            font-size: 36px;
+            color: var(--text-gray);
+            text-align: center;
+            line-height: 1.6;
+            margin: 40px 0;
+        }
+        .share-footer {
+            position: absolute;
+            bottom: 80px;
+            text-align: center;
+        }
+        .share-qr {
+            width: 200px;
+            height: 200px;
+            background: var(--white);
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 16px;
+            color: var(--text-gray);
+        }
+        .share-tip {
+            font-size: 28px;
+            color: var(--text-light);
+        }
+
+        /* 免责声明 */
+        .disclaimer {
+            font-size: 11px;
+            color: var(--text-light);
+            text-align: center;
+            padding: 20px;
+            line-height: 1.5;
+        }
+        .disclaimer a { color: var(--primary); text-decoration: none; }
+
+        /* 结果页免责声明 */
+        .result-disclaimer {
+            background: #fff5f5;
+            border-left: 3px solid var(--secondary);
+            padding: 15px;
+            font-size: 12px;
+            color: var(--text-gray);
+            text-align: left;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 3000;
+            display: none;
+        }
+        .toast.show { display: block; }
+
+        /* 移动端优化 */
+        @media (max-width: 480px) {
+            .theme-selector { top: 10px; right: 10px; padding: 8px 12px; }
+            .history-btn { top: 10px; left: 10px; width: 36px; height: 36px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 主题选择器 -->
+    <div class="theme-selector">
+        <select id="themeSelect">
+            <option value="emotion">💕 情感测试</option>
+            <option value="career">💼 职业测试</option>
+            <option value="social">👥 社交风格</option>
+            <option value="personality">🧠 16型人格</option>
+        </select>
+    </div>
+
+    <!-- 历史记录按钮 -->
+    <button class="history-btn" id="historyBtn" title="测试历史">📋</button>
+
+    <!-- 历史记录面板 -->
+    <div class="history-panel" id="historyPanel">
+        <div class="history-content">
+            <h3 style="margin-bottom: 20px;">测试历史</h3>
+            <div id="historyList"></div>
+            <button class="btn-secondary" id="closeHistory" style="margin-top: 20px;">关闭</button>
+        </div>
+    </div>
+
+    <!-- 分享图片生成区域（隐藏） -->
+    <div id="shareCanvas">
+        <div class="share-card" id="shareCardContent">
+            <div class="share-title" id="shareTitle">情感人格测试</div>
+            <div class="share-percentage" id="sharePercentage">95%</div>
+            <div class="share-type" id="shareType">热烈浪漫型</div>
+            <div class="share-tags" id="shareTags">
+                <span class="share-tag">热情</span>
+                <span class="share-tag">直接</span>
+            </div>
+            <div class="share-desc" id="shareDesc">测试描述文字</div>
+            <div class="share-footer">
+                <div class="share-qr">扫码测试</div>
+                <div class="share-tip">长按保存分享给朋友</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- 封面页 -->
+        <div class="page active" id="coverPage">
+            <div class="cover-page">
+                <div id="uiCoverIcon" class="cover-icon">💕</div>
+                <h1 id="uiCoverTitle" class="cover-title">情感人格测试</h1>
+                <p id="uiCoverSubtitle" class="cover-subtitle">发现你的爱情模式</p>
+                <p id="uiCoverDesc" class="cover-description">通过专业的情感人格测试，探索你的爱情模式、情感需求和伴侣匹配度，让感情生活更美好。</p>
+                <button class="btn-main" id="startQuiz">开始测试</button>
+            </div>
+        </div>
+
+        <!-- 答题页 -->
+        <div class="page" id="quizPage">
+            <div class="quiz-page">
+                <div class="progress-header">
+                    <span id="questionNumber">问题 1/20</span>
+                    <span id="progressPercentage" style="color:var(--primary); font-weight:bold;">0%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                <div class="question-card" id="questionCard">
+                    <div class="question-text" id="questionText"></div>
+                    <div id="optionsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 结果页 -->
+        <div class="page" id="resultPage">
+            <div class="result-card" id="resultCard">
+                <div style="font-size: 12px; color:#999; margin-bottom: 5px;" id="resultLabel">情感匹配度</div>
+                <div class="match-percentage" id="matchPercentage"></div>
+                <h2 class="result-type-name" id="resultTypeName"></h2>
+                <div class="tags-container" id="tagsContainer"></div>
+
+                <div class="detail-analysis">
+                    <p><span class="detail-label" id="matchLabel">最佳匹配：</span><span id="bestMatch"></span></p>
+                    <p style="margin-top: 10px;"><span class="detail-label" id="challengeLabel">相处建议：</span><span id="potentialChallenge"></span></p>
+                </div>
+
+                <div class="result-description" id="resultDescription"></div>
+
+                <!-- 免责声明 -->
+                <div class="result-disclaimer">
+                    ⚠️ <strong>免责声明：</strong>本测试仅供娱乐参考，不代表真实情况，请勿作为生活决策依据。我们不收集任何个人信息。
+                </div>
+
+                <!-- 分享按钮 -->
+                <div class="share-buttons">
+                    <button class="btn-secondary" id="shareImage">📸 生成分享图</button>
+                    <button class="btn-secondary" id="shareLink">🔗 复制链接</button>
+                </div>
+
+                <button class="btn-main" id="restartQuiz">重新测试</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚免责声明 -->
+    <div class="disclaimer">
+        <p>本测试仅供娱乐参考 | 不收集个人信息 | <a href="#">用户协议</a> | <a href="#">隐私政策</a></p>
+        <p style="margin-top: 5px;">© 2026 情感人格测试 All Rights Reserved</p>
+    </div>
+
+    <!-- Toast提示 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ==================== 主题配置数据 ====================
+        const THEMES = {
+            emotion: {
+                theme: {
+                    primaryColor: '#ff6b35',
+                    secondaryColor: '#ee4d2d',
+                    bgStart: '#fff0e8',
+                    bgMid: '#ffe8dc',
+                    bgEnd: '#ffd8cc',
+                    iconEmoji: '💕'
+                },
+                content: {
+                    pageTitle: '情感人格测试 - 发现你的爱情模式',
+                    coverTitle: '情感人格测试',
+                    coverSubtitle: '发现你的爱情模式',
+                    coverDesc: '通过专业的情感人格测试，探索你的爱情模式、情感需求和伴侣匹配度，让感情生活更美好。',
+                    resultLabel: '情感匹配度',
+                    matchLabel: '最佳匹配：',
+                    challengeLabel: '相处建议：'
+                },
+                questions: [
+                    { q: '你认为理想的爱情是什么样的？', weight: 'high', opts: [
+                        { t: '充满激情和浪漫，每天都有新鲜感', scores: { A: 3, B: 1, C: 0, D: 0 } },
+                        { t: '平淡温馨，相互陪伴和理解', scores: { A: 0, B: 3, C: 1, D: 0 } },
+                        { t: '理性规划，共同成长和进步', scores: { A: 0, B: 1, C: 3, D: 0 } },
+                        { t: '自由独立，给彼此空间', scores: { A: 0, B: 0, C: 0, D: 3 } }
+                    ]},
+                    { q: '当你喜欢一个人时，你会？', weight: 'high', opts: [
+                        { t: '主动追求，直接表达爱意', scores: { A: 3, B: 0, C: 0, D: 1 } },
+                        { t: '默默关注，等待合适时机', scores: { A: 0, B: 3, C: 1, D: 0 } },
+                        { t: '理性分析，评估是否合适', scores: { A: 0, B: 1, C: 3, D: 0 } },
+                        { t: '保持友好，不急于确定关系', scores: { A: 1, B: 0, C: 0, D: 3 } }
+                    ]},
+                    { q: '在关系中，你最看重什么？', weight: 'high', opts: [
+                        { t: '激情和浪漫的感觉', scores: { A: 3, B: 1, C: 0, D: 0 } },
+                        { t: '情感支持和陪伴', scores: { A: 0, B: 3, C: 0, D: 1 } },
+                        { t: '共同的价值观和目标', scores: { A: 0, B: 1, C: 3, D: 0 } },
+                        { t: '个人自由和独立空间', scores: { A: 0, B: 0, C: 0, D: 3 } }
+                    ]},
+                    { q: '你和伴侣发生矛盾时，你会？', opts: [
+                        { t: '直接表达不满，希望立刻解决', scores: { A: 3, B: 0, C: 1, D: 0 } },
+                        { t: '选择沟通，理解对方立场', scores: { A: 0, B: 3, C: 0, D: 1 } },
+                        { t: '理性分析，寻找解决方案', scores: { A: 0, B: 1, C: 3, D: 0 } },
+                        { t: '给彼此空间冷静', scores: { A: 1, B: 0, C: 0, D: 3 } }
+                    ]},
+                    { q: '你对婚姻的看法是？', opts: [
+                        { t: '爱情最美的承诺', scores: { A: 3, B: 2, C: 1, D: 0 } },
+                        { t: '陪伴一生的承诺', scores: { A: 1, B: 3, C: 1, D: 0 } },
+                        { t: '理性的生活规划', scores: { A: 0, B: 1, C: 3, D: 1 } },
+                        { t: '不一定要结婚', scores: { A: 0, B: 0, C: 0, D: 3 } }
+                    ]}
+                ],
+                resultTypes: {
+                    "A": {
+                        typeName: "热烈浪漫型",
+                        tags: ["热情", "直接", "浪漫", "激情", "主动"],
+                        bestMatch: "温柔陪伴型 - 互补配合",
+                        potentialChallenge: "学会控制情绪，理性处理问题",
+                        desc: "你拥有热烈而直接的情感表达方式，在爱情中充满激情和浪漫。你敢于主动追求喜欢的人，不会掩饰自己的感情。你的爱情充满火花，但也要注意学会理性沟通。"
+                    },
+                    "B": {
+                        typeName: "温柔陪伴型",
+                        tags: ["温柔", "陪伴", "理解", "支持", "细腻"],
+                        bestMatch: "热烈浪漫型 - 互补配合",
+                        potentialChallenge: "不要过度牺牲，学会表达自己的需求",
+                        desc: "你温柔细腻，善于理解和支持伴侣。在爱情中，你更看重陪伴和情感的深度交流。你的爱像春雨般细腻温润，给伴侣无限的安全感。"
+                    },
+                    "C": {
+                        typeName: "理性分析型",
+                        tags: ["理性", "规划", "稳定", "成长", "务实"],
+                        bestMatch: "温柔陪伴型 - 相互欣赏",
+                        potentialChallenge: "不要过度理性，学会表达情感",
+                        desc: "你在爱情中保持理性，善于分析和规划。你看重双方的价值观匹配和未来的发展。你的爱情稳定而长久，但也要学会多一些浪漫和情感表达。"
+                    },
+                    "D": {
+                        typeName: "自由灵魂型",
+                        tags: ["独立", "自由", "尊重", "空间", "随性"],
+                        bestMatch: "理性分析型 - 相互理解",
+                        potentialChallenge: "学会承诺，给伴侣更多安全感",
+                        desc: "你珍视个人自由和独立空间，在爱情中追求平等和尊重。你不喜欢被束缚，但也愿意给伴侣足够的自由。你的爱情轻松而自由，但也要学会承担责任。"
+                    }
+                }
+            },
+            career: {
+                theme: {
+                    primaryColor: '#d97706',
+                    secondaryColor: '#b45309',
+                    bgStart: '#fffbeb',
+                    bgMid: '#fef3c7',
+                    bgEnd: '#fde68a',
+                    iconEmoji: '💼'
+                },
+                content: {
+                    pageTitle: '职业测试 - 发现你的理想职业',
+                    coverTitle: '发现你的理想职业',
+                    coverSubtitle: '找到最适合你的职业方向',
+                    coverDesc: '通过专业的职业性格测试，发现你最适合的职业类型和发展方向，让职业生涯更顺利。',
+                    resultLabel: '职业匹配度',
+                    matchLabel: '推荐职业：',
+                    challengeLabel: '发展建议：'
+                },
+                questions: [
+                    { q: '在工作中，你更喜欢？', opts: [
+                        { t: '独立完成项目，有自己的创作空间', scores: { A: 3, B: 1, C: 0, D: 0 } },
+                        { t: '和团队一起协作，共同达成目标', scores: { A: 0, B: 3, C: 1, D: 0 } },
+                        { t: '分析数据，找出规律和问题', scores: { A: 0, B: 0, C: 3, D: 1 } },
+                        { t: '帮助他人解决问题', scores: { A: 1, B: 1, C: 0, D: 3 } }
+                    ]},
+                    { q: '遇到困难时，你通常会？', opts: [
+                        { t: '凭直觉和灵感寻找突破口', scores: { A: 3, B: 0, C: 1, D: 0 } },
+                        { t: '和同事讨论，集思广益', scores: { A: 0, B: 3, C: 0, D: 1 } },
+                        { t: '系统分析，制定解决方案', scores: { A: 0, B: 0, C: 3, D: 0 } },
+                        { t: '站在他人角度思考问题', scores: { A: 1, B: 1, C: 0, D: 3 } }
+                    ]},
+                    { q: '你理想的工作环境是？', opts: [
+                        { t: '自由灵活，可以发挥创意', scores: { A: 3, B: 0, C: 0, D: 1 } },
+                        { t: '热闹活跃，充满人际互动', scores: { A: 0, B: 3, C: 0, D: 1 } },
+                        { t: '安静有序，逻辑清晰', scores: { A: 0, B: 0, C: 3, D: 0 } },
+                        { t: '温馨和谐，能帮助他人', scores: { A: 0, B: 1, C: 0, D: 3 } }
+                    ]}
+                ],
+                resultTypes: {
+                    "A": {
+                        typeName: "创意型",
+                        tags: ["创意", "设计", "艺术", "灵感", "自由"],
+                        bestMatch: "设计师、艺术家、文案策划、导演、广告创意",
+                        potentialChallenge: "需要学会与团队沟通，平衡创意与商业需求",
+                        desc: "你拥有丰富的创造力和艺术天赋，善于从独特角度思考问题。你适合从事需要创意和艺术感的工作，在设计、艺术、媒体等领域会有出色表现。"
+                    },
+                    "B": {
+                        typeName: "领导型",
+                        tags: ["领导", "团队", "沟通", "组织", "协调"],
+                        bestMatch: "产品经理、项目经理、销售总监、创业者、团队主管",
+                        potentialChallenge: "需要学会倾听他人意见，避免过于强势",
+                        desc: "你天生的领导力和沟通能力让你在团队中如鱼得水。你擅长组织和协调，能够激励团队成员共同为目标奋斗。"
+                    },
+                    "C": {
+                        typeName: "分析型",
+                        tags: ["分析", "逻辑", "数据", "研究", "精准"],
+                        bestMatch: "数据分析师、程序员、研究员、财务分析师、工程师",
+                        potentialChallenge: "需要提升人际沟通能力，不要过于追求完美",
+                        desc: "你的逻辑思维能力和分析能力非常出色，善于从复杂的数据和问题中找到规律。你适合从事需要深度思考和分析的工作。"
+                    },
+                    "D": {
+                        typeName: "服务型",
+                        tags: ["服务", "帮助", "同理心", "耐心", "关怀"],
+                        bestMatch: "教师、医生、心理咨询师、人力资源、客户服务",
+                        potentialChallenge: "需要学会设定边界，避免过度投入他人问题",
+                        desc: "你有很强的同理心和助人意愿，善于理解他人的情感和需求。你适合从事能够直接帮助他人的工作。"
+                    }
+                }
+            },
+            social: {
+                theme: {
+                    primaryColor: '#0ea5e9',
+                    secondaryColor: '#0284c7',
+                    bgStart: '#f0f9ff',
+                    bgMid: '#e0f2fe',
+                    bgEnd: '#bae6fd',
+                    iconEmoji: '👥'
+                },
+                content: {
+                    pageTitle: '社交风格测试 - 发现你的社交模式',
+                    coverTitle: '发现你的社交风格',
+                    coverSubtitle: '了解你在群体中的角色',
+                    coverDesc: '通过专业的社交风格测试，了解你在社交场合的表现方式和最适合的社交环境。',
+                    resultLabel: '社交倾向度',
+                    matchLabel: '适合场景：',
+                    challengeLabel: '提升建议：'
+                },
+                questions: [
+                    { q: '参加聚会时，你通常会？', opts: [
+                        { t: '主动结识新朋友，成为焦点', scores: { A: 3, B: 1, C: 0, D: 0 } },
+                        { t: '和熟悉的朋友聊天', scores: { A: 0, B: 3, C: 1, D: 0 } },
+                        { t: '观察人群，选择性交流', scores: { A: 0, B: 1, C: 3, D: 0 } },
+                        { t: '找个安静角落，不想社交', scores: { A: 0, B: 0, C: 0, D: 3 } }
+                    ]},
+                    { q: '你更喜欢哪种沟通方式？', opts: [
+                        { t: '当面对话，直接表达', scores: { A: 3, B: 1, C: 0, D: 0 } },
+                        { t: '小组讨论，互动交流', scores: { A: 0, B: 3, C: 1, D: 0 } },
+                        { t: '文字消息，深思熟虑', scores: { A: 0, B: 1, C: 3, D: 0 } },
+                        { t: '避免沟通，保持沉默', scores: { A: 0, B: 0, C: 0, D: 3 } }
+                    ]},
+                    { q: '在团队合作中，你通常？', opts: [
+                        { t: '主动领导，分配任务', scores: { A: 3, B: 1, C: 0, D: 0 } },
+                        { t: '积极参与，配合他人', scores: { A: 0, B: 3, C: 1, D: 0 } },
+                        { t: '分析问题，提供建议', scores: { A: 0, B: 1, C: 3, D: 0 } },
+                        { t: '独立工作，减少交流', scores: { A: 0, B: 0, C: 0, D: 3 } }
+                    ]}
+                ],
+                resultTypes: {
+                    "A": {
+                        typeName: "社交达人型",
+                        tags: ["外向", "热情", "领导力", "表达", "活力"],
+                        bestMatch: "聚会、演讲、销售、活动策划",
+                        potentialChallenge: "学会倾听，不要过于主导对话",
+                        desc: "你是天生的社交达人，在任何场合都能轻松融入并成为焦点。你热情开朗，善于表达，拥有强大的社交网络。"
+                    },
+                    "B": {
+                        typeName: "和谐友好型",
+                        tags: ["友好", "合作", "温和", "倾听", "包容"],
+                        bestMatch: "小组讨论、团队活动、朋友聚会",
+                        potentialChallenge: "不要过度迎合，学会表达自己的观点",
+                        desc: "你友好温和，善于与人合作。在社交中，你更注重和谐与互动，是团队中不可或缺的粘合剂。"
+                    },
+                    "C": {
+                        typeName: "深思熟虑型",
+                        tags: ["理性", "观察", "分析", "谨慎", "精准"],
+                        bestMatch: "专业讨论、学术交流、咨询会议",
+                        potentialChallenge: "需要更主动一些，不要过度思考",
+                        desc: "你在社交中保持理性，善于观察和分析。你不会轻易发言，但每次发言都很有价值。"
+                    },
+                    "D": {
+                        typeName: "独立独处型",
+                        tags: ["独立", "内省", "深度", "专注", "自由"],
+                        bestMatch: "独立工作、深度交流、一对一沟通",
+                        potentialChallenge: "适当参与社交活动，拓展人际圈",
+                        desc: "你珍视独立和独处时间，更喜欢深度交流而非广泛社交。你在小群体中或一对一交流时表现最佳。"
+                    }
+                }
+            },
+            personality: {
+                theme: {
+                    primaryColor: '#9d4edd',
+                    secondaryColor: '#7b2cbf',
+                    bgStart: '#fdf4ff',
+                    bgMid: '#fae8ff',
+                    bgEnd: '#f5d0fe',
+                    iconEmoji: '🧠'
+                },
+                content: {
+                    pageTitle: '16型人格测试 - 发现你的性格类型',
+                    coverTitle: '发现你的16型人格',
+                    coverSubtitle: '探索你的性格偏好',
+                    coverDesc: '通过经典的人格测试，了解你的性格类型、优势劣势和发展方向。',
+                    resultLabel: '性格倾向度',
+                    matchLabel: '最佳搭档：',
+                    challengeLabel: '成长方向：'
+                },
+                questions: [
+                    { q: '在社交场合，你通常？', opts: [
+                        { t: '主动与人交谈，获取能量', scores: { E: 3, I: 0 } },
+                        { t: '静静观察，独自思考', scores: { E: 0, I: 3 } }
+                    ]},
+                    { q: '做决定时，你更依赖？', opts: [
+                        { t: '逻辑分析和客观事实', scores: { T: 3, F: 0 } },
+                        { t: '个人价值观和他人感受', scores: { T: 0, F: 3 } }
+                    ]},
+                    { q: '面对信息，你更关注？', opts: [
+                        { t: '具体细节和实际情况', scores: { S: 3, N: 0 } },
+                        { t: '整体模式和潜在可能', scores: { S: 0, N: 3 } }
+                    ]},
+                    { q: '安排生活时，你偏好？', opts: [
+                        { t: '提前计划，有条不紊', scores: { J: 3, P: 0 } },
+                        { t: '灵活应变，保持开放', scores: { J: 0, P: 3 } }
+                    ]}
+                ],
+                resultTypes: {
+                    "E": {
+                        typeName: "外向型 (E)",
+                        tags: ["社交", "表达", "活力", "团队", "行动"],
+                        bestMatch: "内向型(I) - 互补配合",
+                        potentialChallenge: "学会独处和深度思考",
+                        desc: "你从与人交往中获得能量，善于表达和沟通。在团队中活跃积极，是团队的活力源泉。"
+                    },
+                    "I": {
+                        typeName: "内向型 (I)",
+                        tags: ["深度", "专注", "思考", "独立", "内涵"],
+                        bestMatch: "外向型(E) - 互补配合",
+                        potentialChallenge: "适当表达，不要过度隐藏",
+                        desc: "你从独处中获得能量，善于深度思考。你更喜欢一对一的深度交流，拥有丰富的内心世界。"
+                    }
+                }
+            }
+        };
+
+        // 当前主题
+        let currentTheme = 'emotion';
+
+        // ==================== 历史记录管理 ====================
+        const HISTORY_KEY = 'test_history';
+        const MAX_HISTORY = 10;
+
+        function saveHistory(result) {
+            const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+            const record = {
+                date: new Date().toLocaleString('zh-CN'),
+                theme: currentTheme,
+                typeName: result.typeName,
+                percentage: result.percentage,
+                timestamp: Date.now()
+            };
+            history.unshift(record);
+            if (history.length > MAX_HISTORY) {
+                history.pop();
+            }
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+        }
+
+        function loadHistory() {
+            return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        }
+
+        function clearHistory() {
+            localStorage.removeItem(HISTORY_KEY);
+            renderHistoryList();
+        }
+
+        function renderHistoryList() {
+            const history = loadHistory();
+            const listEl = document.getElementById('historyList');
+            if (history.length === 0) {
+                listEl.innerHTML = '<p style="text-align:center;color:#999;">暂无测试历史</p>';
+                return;
+            }
+            listEl.innerHTML = history.map(item => `
+                <div class="history-item" data-timestamp="${item.timestamp}">
+                    <div class="history-date">${item.date}</div>
+                    <div class="history-result">${item.typeName} - ${item.percentage}%</div>
+                    <div style="font-size:12px;color:#999;">${THEMES[item.theme].content.coverTitle}</div>
+                </div>
+            `).join('');
+        }
+
+        // ==================== 主题切换 ====================
+        function applyTheme(themeKey) {
+            const theme = THEMES[themeKey];
+            const root = document.documentElement;
+
+            // 设置CSS变量
+            root.style.setProperty('--primary', theme.theme.primaryColor);
+            root.style.setProperty('--secondary', theme.theme.secondaryColor);
+            root.style.setProperty('--bg-start', theme.theme.bgStart);
+            root.style.setProperty('--bg-mid', theme.theme.bgMid);
+            root.style.setProperty('--bg-end', theme.theme.bgEnd);
+
+            // 更新文案
+            document.getElementById('headTitle').textContent = theme.content.pageTitle;
+            document.getElementById('uiCoverIcon').textContent = theme.theme.iconEmoji;
+            document.getElementById('uiCoverTitle').textContent = theme.content.coverTitle;
+            document.getElementById('uiCoverSubtitle').textContent = theme.content.coverSubtitle;
+            document.getElementById('uiCoverDesc').textContent = theme.content.coverDesc;
+            document.getElementById('resultLabel').textContent = theme.content.resultLabel;
+            document.getElementById('matchLabel').textContent = theme.content.matchLabel;
+            document.getElementById('challengeLabel').textContent = theme.content.challengeLabel;
+
+            currentTheme = themeKey;
+        }
+
+        // ==================== Toast提示 ====================
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // ==================== 分享功能 ====================
+        async function generateShareImage() {
+            const result = {
+                percentage: document.getElementById('matchPercentage').textContent,
+                typeName: document.getElementById('resultTypeName').textContent,
+                tags: Array.from(document.querySelectorAll('.tag')).map(t => t.textContent),
+                desc: document.getElementById('resultDescription').textContent.substring(0, 50) + '...'
+            };
+
+            // 更新分享卡片内容
+            document.getElementById('shareTitle').textContent = THEMES[currentTheme].content.coverTitle;
+            document.getElementById('sharePercentage').textContent = result.percentage;
+            document.getElementById('shareType').textContent = result.typeName;
+            document.getElementById('shareTags').innerHTML = result.tags.map(t => `<span class="share-tag">${t}</span>`).join('');
+            document.getElementById('shareDesc').textContent = result.desc;
+
+            showToast('正在生成分享图片...');
+
+            try {
+                const canvas = await html2canvas(document.getElementById('shareCanvas'), {
+                    width: 1080,
+                    height: 1920,
+                    scale: 1,
+                    useCORS: true,
+                    backgroundColor: null
+                });
+
+                // 转换为图片并下载
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `测试结果_${result.typeName}_${Date.now()}.png`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showToast('图片已保存，可以分享啦！');
+                });
+            } catch (error) {
+                console.error('生成图片失败:', error);
+                showToast('生成图片失败，请重试');
+            }
+        }
+
+        function copyShareLink() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('链接已复制到剪贴板');
+            }).catch(() => {
+                showToast('复制失败，请手动复制');
+            });
+        }
+
+        // ==================== 主程序 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentQuestion = 0;
+            let userScores = { A: 0, B: 0, C: 0, D: 0, E: 0, I: 0, T: 0, F: 0, S: 0, N: 0, J: 0, P: 0 };
+
+            // 初始化主题
+            applyTheme(currentTheme);
+
+            // 主题切换事件
+            document.getElementById('themeSelect').addEventListener('change', function() {
+                applyTheme(this.value);
+                // 重置测试状态
+                currentQuestion = 0;
+                userScores = { A: 0, B: 0, C: 0, D: 0, E: 0, I: 0, T: 0, F: 0, S: 0, N: 0, J: 0, P: 0 };
+                showPage('coverPage');
+            });
+
+            // 页面切换函数
+            function showPage(pageId) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById(pageId).classList.add('active');
+            }
+
+            // 历史记录面板
+            document.getElementById('historyBtn').addEventListener('click', function() {
+                renderHistoryList();
+                document.getElementById('historyPanel').classList.add('active');
+            });
+
+            document.getElementById('closeHistory').addEventListener('click', function() {
+                document.getElementById('historyPanel').classList.remove('active');
+            });
+
+            // 开始测试
+            document.getElementById('startQuiz').addEventListener('click', function() {
+                currentQuestion = 0;
+                const theme = THEMES[currentTheme];
+                userScores = { A: 0, B: 0, C: 0, D: 0, E: 0, I: 0, T: 0, F: 0, S: 0, N: 0, J: 0, P: 0 };
+
+                const card = document.getElementById('questionCard');
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+
+                showPage('quizPage');
+                renderQuestion();
+            });
+
+            // 渲染题目
+            function renderQuestion() {
+                const theme = THEMES[currentTheme];
+                const questions = theme.questions;
+
+                if (currentQuestion >= questions.length) {
+                    calculateResult();
+                    return;
+                }
+
+                const q = questions[currentQuestion];
+
+                document.getElementById('questionNumber').textContent = `问题 ${currentQuestion + 1}/${questions.length}`;
+                const progress = (currentQuestion / questions.length) * 100;
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('progressPercentage').textContent = Math.round(progress) + '%';
+                document.getElementById('questionText').textContent = q.q;
+
+                const optionsBox = document.getElementById('optionsList');
+                optionsBox.innerHTML = '';
+                q.opts.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-button';
+                    btn.textContent = opt.t;
+                    btn.onclick = function() { handleSelect(opt.scores); };
+                    optionsBox.appendChild(btn);
+                });
+            }
+
+            // 处理选择
+            function handleSelect(scores) {
+                for (let type in scores) {
+                    if (userScores.hasOwnProperty(type)) {
+                        userScores[type] += scores[type];
+                    }
+                }
+
+                const card = document.getElementById('questionCard');
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(10px)';
+
+                setTimeout(function() {
+                    currentQuestion++;
+                    if (currentQuestion < THEMES[currentTheme].questions.length) {
+                        renderQuestion();
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    } else {
+                        calculateResult();
+                    }
+                }, 300);
+            }
+
+            // 计算结果
+            function calculateResult() {
+                const theme = THEMES[currentTheme];
+                const resultTypes = theme.resultTypes;
+
+                let maxType = 'A';
+                let maxScore = 0;
+
+                for (let type in userScores) {
+                    if (userScores[type] > maxScore) {
+                        maxScore = userScores[type];
+                        maxType = type;
+                    }
+                }
+
+                const result = resultTypes[maxType];
+                if (!result) {
+                    console.error('未找到结果类型:', maxType);
+                    return;
+                }
+
+                const matchPercent = Math.floor(Math.random() * 15) + 85;
+
+                document.getElementById('matchPercentage').textContent = matchPercent + '%';
+                document.getElementById('resultTypeName').textContent = result.typeName;
+                document.getElementById('bestMatch').textContent = result.bestMatch;
+                document.getElementById('potentialChallenge').textContent = result.potentialChallenge;
+                document.getElementById('resultDescription').textContent = result.desc;
+
+                const tagsBox = document.getElementById('tagsContainer');
+                tagsBox.innerHTML = '';
+                result.tags.forEach(tag => {
+                    const span = document.createElement('span');
+                    span.className = 'tag';
+                    span.textContent = tag;
+                    tagsBox.appendChild(span);
+                });
+
+                // 保存历史记录
+                saveHistory({
+                    typeName: result.typeName,
+                    percentage: matchPercent
+                });
+
+                showPage('resultPage');
+            }
+
+            // 分享按钮事件
+            document.getElementById('shareImage').addEventListener('click', generateShareImage);
+            document.getElementById('shareLink').addEventListener('click', copyShareLink);
+
+            // 重新测试
+            document.getElementById('restartQuiz').addEventListener('click', function() {
+                currentQuestion = 0;
+                userScores = { A: 0, B: 0, C: 0, D: 0, E: 0, I: 0, T: 0, F: 0, S: 0, N: 0, J: 0, P: 0 };
+                document.getElementById('progressFill').style.width = '0%';
+                document.getElementById('progressPercentage').textContent = '0%';
+
+                const card = document.getElementById('questionCard');
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+
+                showPage('coverPage');
+            });
+        });
+    </script>
+</body>
+</html>

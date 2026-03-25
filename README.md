@@ -1,313 +1,192 @@
-# 情感人格测试网页
+# 情感人格测试网页生成器
 
-## 项目简介
+一个纯前端的测试问卷生成器，支持快速创建各种主题的心理测试。
 
-这是一个纯前端实现的情感人格类型测试网页，采用活力橙红配色方案，通过20道精心设计的情感相关问题，帮助用户了解自己在感情中的真实模样和爱情模式。
+## 🎯 当前版本：v3.0
 
-## 核心特性
+**"你会吸引哪种另一半"** - 紫色神秘风主题
 
-- 🔐 **密码保护**：4位数字密码验证（默认密码：1234）
-- 🎨 **活力橙红配色**：温暖热情的视觉效果
-- 📱 **响应式设计**：完美适配移动端和桌面端
-- 🎯 **20道专业题目**：基于情感心理学设计，带权重计算
-- 💝 **4种人格类型**：热烈浪漫型、温柔陪伴型、理性分析型、自由灵魂型
-- 📊 **专业分析报告**：包含爱情观、表达方式、关系需求、潜在挑战、最佳匹配
-- ✨ **流畅动画**：优雅的页面切换和交互效果
-- 🚀 **纯前端实现**：无需后端，即开即用
+- 📁 位置：`v3_archive/`
+- 🔐 密码：1234
+- 📝 20道精选题目
+- 🎯 5种伴侣类型结果
 
-## 使用方法
+---
 
-### 1. 打开网页
-在浏览器中打开 `index.html` 文件
+## 📂 项目结构（重要！）
 
-### 2. 输入密码
-- 默认密码：**1234**
-- 可在代码中修改 `CORRECT_PASSWORD` 变量更改密码
-
-### 3. 开始测试
-- 点击"开始测试"按钮
-- 依次回答20道情感相关问题
-- 每道题选择一个最符合你的选项
-
-### 4. 查看结果
-- 匹配度百分比
-- 你的情感人格类型
-- 5个特征标签
-- 专业分析报告（5个维度）
-- 其他适合类型（备选）
-
-## 人格类型说明
-
-### 🔥 热烈浪漫型
-- **特点**：主动、热情、表达、勇敢、浪漫
-- **爱情观**：相信爱情应该充满激情和浪漫，追求心动的感觉
-- **表达方式**：直接表达爱意，不吝啬情感表达
-- **关系需求**：需要激情和新鲜感，渴望被热烈回应
-- **潜在挑战**：可能在长期关系中难以保持激情
-- **最佳匹配**：温柔陪伴型
-
-### 💛 温柔陪伴型
-- **特点**：细腻、陪伴、体贴、耐心、温暖
-- **爱情观**：相信细水长流的感情，重视陪伴和理解
-- **表达方式**：通过细微的照顾和陪伴来表达爱意
-- **关系需求**：需要情感上的理解和认同
-- **潜在挑战**：可能过于迁就对方，忽略自己的需求
-- **最佳匹配**：理性分析型
-
-### 🧠 理性分析型
-- **特点**：理性、观察、谨慎、稳定、深沉
-- **爱情观**：感情需要理性经营，重视稳定性和未来发展
-- **表达方式**：通过实际行动和规划来表达爱意
-- **关系需求**：需要稳定感和安全感
-- **潜在挑战**：可能过于理性，忽略情感交流
-- **最佳匹配**：热烈浪漫型
-
-### 🕊️ 自由灵魂型
-- **特点**：独立、自由、真实、随性、真诚
-- **爱情观**：追求平等与尊重的关系，重视个人独立空间
-- **表达方式**：用真实和真诚来表达爱意
-- **关系需求**：需要个人空间和自由，渴望被理解
-- **潜在挑战**：可能被误解为不够投入
-- **最佳匹配**：温柔陪伴型
-
-## 技术实现
-
-### 权重计算系统
-每道题都有不同的权重级别：
-- **high（高权重）**：核心价值观问题，分值影响大
-- **medium（中权重）**：日常行为问题，分值影响适中
-- **low（低权重）**：细节偏好问题，分值影响较小
-
-每个选项对不同人格类型有不同分值（0-3分），系统会根据所有答案计算各类型总分，最终得出匹配度最高的人格类型。
-
-### 匹配度计算
-```
-匹配度 = (你的类型得分 / 最高可能得分) × 100%
-最高可能得分 = 题目数量 × 3（每题最高3分）
-```
-
-## 文件结构
+本项目采用**版本文件夹隔离**的管理方式，不同版本的代码存放在不同目录中：
 
 ```
 web-xhs-question/
-├── index.html          # 主页面（包含所有功能）
-├── v2_themes/          # 主题模板文件夹
-├── docker-compose.yml  # Docker编排配置
-├── Dockerfile          # Docker镜像构建
-├── vercel.json         # Vercel部署配置
-├── nginx.conf          # Nginx服务器配置
-├── README.md           # 项目说明文档
-├── CLAUDE.md           # 工作记忆文档
-└── archive/            # 归档文件夹
+├── v3_archive/          ⭐ 当前版本（推荐使用）
+│   ├── index.html       # 主引擎
+│   ├── config.js        # 配置文件（修改这里换主题！）
+│   ├── QUICKSTART.md    # 快速入门指南
+│   └── ...
+├── v2_themes/           # v2.0 可复用主题引擎
+│   ├── emotion_test.html
+│   └── career_test.html
+├── v1_archive/          # v1.0 归档版本
+│   └── index.html
+├── CLAUDE.md            # 工作记忆文档
+└── README.md            # 本文件
 ```
 
-## 快速部署
+### 🚨 给其他 AI 的重要提示
 
-### 方式一：Vercel 部署（推荐，5分钟免费上线）⭐
+**当接手此项目时，请注意：**
 
-#### 1. 注册并导入项目
-1. 访问 [Vercel](https://vercel.com) 并使用 GitHub 登录
-2. 点击 "New Project" → "Import Git Repository"
-3. 选择 `jackhe183/web-xhs-question` 仓库
-4. 点击 "Import"
-
-#### 2. 配置部署
-- Project Name: `emotion-quiz`（可自定义）
-- Framework Preset: `Other`
-- Build Command: （留空）
-- Output Directory: （留空）
-
-#### 3. 部署
-点击 "Deploy" 按钮，等待约1分钟即可获得：
-```
-https://emotion-quiz.vercel.app
-```
-
-#### 4. 更新代码
-```bash
-git add .
-git commit -m "更新内容"
-git push
-# Vercel 自动检测并重新部署
-```
+1. **当前工作版本是 `v3_archive/`**，不是根目录
+2. **只需修改 `v3_archive/config.js`** 即可换主题
+3. **不要修改根目录**，根目录只存放文档和配置文件
+4. 各版本独立运行，互不影响
 
 ---
 
-### 方式二：Docker 本地运行
+## ⚡ 快速开始
 
-#### 前置要求
-安装 Docker Desktop（Windows/Mac）或 Docker Engine（Linux）
+### 本地运行
 
-#### 快速启动
 ```bash
-# 进入项目目录
-cd web-xhs-question
+# 进入 v3.0 目录
+cd v3_archive
 
-# 使用 docker-compose 启动
-docker-compose up -d
-
-# 访问测试
-# 浏览器打开: http://localhost:8080
+# 用浏览器打开 index.html
+# 或使用 Live Server 等工具
 ```
 
-#### 常用命令
-```bash
-# 查看运行状态
-docker-compose ps
+### 部署到 Cloudflare Pages
 
-# 查看日志
-docker-compose logs -f
-
-# 停止服务
-docker-compose down
-
-# 重新构建
-docker-compose up -d --build
-```
+1. 登录 https://dash.cloudflare.com/
+2. 进入 "Workers & Pages" → "Create application"
+3. 连接 GitHub 仓库 `jackhe183/web-xhs-question`
+4. 设置构建目录为 `v3_archive`
+5. 部署完成！
 
 ---
 
-### 方式三：云服务器部署
+## 🎨 换主题超简单
 
-#### 1. 购买服务器
-推荐配置：
-- 腾讯云轻量应用服务器：68元/年（2核2G）
-- 阿里云ECS：99元/年起
+只需修改 `v3_archive/config.js` 文件：
 
-#### 2. 服务器初始化
-```bash
-# SSH连接服务器后执行
+```javascript
+const APP_CONFIG = {
+    // 1. 修改颜色
+    theme: {
+        primaryColor: '#FF9EBA',
+        secondaryColor: '#FFB6D9',
+        // ...
+    },
 
-# 安装 Docker
-curl -fsSL https://get.docker.com | sh
+    // 2. 修改文案
+    content: {
+        pageTitle: '你的测试标题',
+        coverTitle: '封面大标题',
+        // ...
+    },
 
-# 安装 Docker Compose
-sudo apt install docker-compose -y
+    // 3. 修改题目
+    questions: [
+        { q: '你的问题？', opts: [...] }
+    ],
 
-# 克隆项目
-git clone https://github.com/jackhe183/web-xhs-question.git
-cd web-xhs-question
-
-# 启动服务
-docker-compose up -d
+    // 4. 修改结果
+    resultTypes: {
+        "A": { typeName: "类型名称", ... }
+    }
+};
 ```
 
-#### 3. 访问网站
-```
-http://你的服务器IP:8080
-```
-
-#### 4. 配置域名（可选）
-在域名DNS设置中添加A记录指向服务器IP即可
+**详细教程**：查看 `v3_archive/QUICKSTART.md`
 
 ---
 
-## 部署方案对比
+## 📚 版本历史
 
-| 方案 | 时间 | 成本 | 优势 | 适用场景 |
-|------|------|------|------|----------|
-| **Vercel** | 5分钟 | 免费 | 全球CDN、自动HTTPS、自动更新 | 个人项目、快速上线 |
-| **Docker本地** | 2分钟 | 免费 | 完全控制、离线可用 | 本地开发、内网分享 |
-| **云服务器** | 20分钟 | 68-99元/年 | 完全控制、可扩展 | 生产环境、自定义需求 |
+| 版本 | 目录 | 特点 | 状态 |
+|------|------|------|------|
+| v3.0 | `v3_archive/` | 配置完全外部化，文档完善 | ✅ 当前版本 |
+| v2.0 | `v2_themes/` | 可复用主题引擎，多主题模板 | 📦 归档 |
+| v1.0 | `v1_archive/` | 初始版本，基础功能 | 📦 归档 |
 
-## 自定义修改
+### v3.0 特性
 
-### 修改密码
-在 `<script>` 标签中找到：
-```javascript
-const CORRECT_PASSWORD = "1234"; // 修改这里的密码
+- ✅ **真正分离**：HTML引擎 + 外部config.js
+- ✅ **完全配置化**：9个配置节，所有硬编码移除
+- ✅ **文档完善**：快速入门指南 + 主题切换教程
+- ✅ **AI友好**：其他AI可快速接手
+
+---
+
+## 🚀 部署方式
+
+### Cloudflare Pages（推荐）⭐
+
+- ✅ 免费
+- ✅ 全球CDN
+- ✅ 自动HTTPS
+- ✅ 自动部署（git push自动更新）
+
+**设置**：
+```
+Build output directory: v3_archive
 ```
 
-### 修改题目
-在 `questions` 数组中修改题目和选项：
-```javascript
-{
-    q: "你的问题？",
-    weight: "high", // high/medium/low
-    opts: [
-        {
-            t: "选项文本",
-            scores: { A: 3, B: 1, C: 0, D: 2 } // 各类型得分
-        }
-    ]
-}
-```
+### 其他部署方式
 
-### 修改结果类型
-在 `resultTypes` 对象中修改：
-```javascript
-"A": {
-    typeName: "类型名称",
-    tags: ["标签1", "标签2"],
-    loveView: "爱情观描述",
-    expressStyle: "表达方式描述",
-    relationshipNeed: "关系需求描述",
-    potentialChallenge: "潜在挑战描述",
-    bestMatch: "最佳匹配描述",
-    desc: "详细描述..."
-}
-```
+- **Vercel**：免费，全球CDN
+- **GitHub Pages**：免费，简单
+- **Netlify**：免费，功能丰富
 
-### 修改配色
-在 `<style>` 的 `:root` 中修改：
-```css
-:root {
-    --primary-orange: #ff6b35;
-    --secondary-red: #ee4d2d;
-    --light-orange-bg: #fff0e8;
-}
-```
+---
 
-## 浏览器兼容性
+## 🛠️ 技术栈
 
-- ✅ Chrome（推荐）
-- ✅ Firefox
-- ✅ Safari
-- ✅ Edge
-- ✅ 移动端浏览器
+- **纯前端**：HTML + CSS + JavaScript
+- **无依赖构建**：即开即用
+- **外部库（CDN）**：
+  - canvas-confetti（粒子特效）
+  - bodymovin/lottie（Lottie动画）
+  - html2canvas（图片生成）
 
-## 更新日志
+---
 
-### v2.0.0 (2024-03-21)
-- ✨ 添加密码保护功能（4位数字）
-- ✨ 实现权重计算系统
-- ✨ 添加专业分析报告（5个维度）
-- ✨ 优化题目设计（20题带权重）
-- ✨ 修复按钮点击问题
-- 🗂️ 归档原始大体积文件
+## 📖 文档导航
 
-### v1.0.0 (2024-03-21)
-- ✨ 初始版本发布
-- 🎨 活力橙红配色方案
-- 📝 20道情感测试题目
-- 💝 4种情感人格类型
-- 📱 响应式设计
+| 文档 | 说明 | 位置 |
+|------|------|------|
+| **快速入门** | 新手首选，1分钟上手 | `v3_archive/QUICKSTART.md` |
+| **主题切换** | 详细配置教程 | `v3_archive/THEME_SWITCH_GUIDE.md` |
+| **架构说明** | 技术细节 | `v3_archive/README.md` |
+| **工作记忆** | 开发记录 | `CLAUDE.md` |
 
-## 参考资料
+---
 
-- [爱情态度测试(LAS)](https://minke8.cn/gd2.html) - 六大爱情类型理论
-- [依恋型人格测试](https://zhuanlan.zhihu.com/p/342263266) - 四种依恋类型
-- [MBTI恋爱类型测试](https://www.xmcs.cn/x/ai) - 恋爱版测试参考
+## 🤝 给AI的开发指南
 
-## 常见问题
+当你被要求继续开发此项目时：
 
-**Q: 忘记密码怎么办？**
-A: 默认密码是 1234，可以在代码中修改 CORRECT_PASSWORD 变量。
+1. **首先阅读** `v3_archive/QUICKSTART.md`
+2. **理解架构** `v3_archive/README.md`
+3. **修改配置** 只需编辑 `v3_archive/config.js`
+4. **不要动** `v3_archive/index.html`（引擎文件）
 
-**Q: 如何重置测试？**
-A: 在结果页点击"重新测试"按钮即可重新开始。
+---
 
-**Q: 可以修改题目数量吗？**
-A: 可以，在 questions 数组中添加或删除题目即可。
-
-**Q: 结果准确吗？**
-A: 这是一个娱乐性质的测试，结果仅供参考，不能代表真实的情感状况。
-
-## 许可证
+## 📝 许可证
 
 MIT License - 自由使用和修改
 
 ---
 
-**Created with ❤️ by Claude Code**
-**工作区路径**：`C:/Users/root/Desktop/web-xhs-question/`
+## 🔗 相关链接
+
+- **GitHub仓库**：https://github.com/jackhe183/web-xhs-question
+- **在线演示**：（Cloudflare Pages 部署后添加）
+
+---
+
+**最后更新**：2026-03-26
+**当前版本**：v3.0
+**维护者**：jackhe183
