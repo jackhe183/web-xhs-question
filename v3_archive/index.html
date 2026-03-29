@@ -1054,7 +1054,7 @@
 
                 <!-- 第5层：手风琴详情块 -->
                 <div class="accordion-section">
-                    <div class="accordion-item advantage">
+                    <div class="accordion-item advantage active">
                         <div class="accordion-header">
                             <span class="accordion-icon">✨</span>
                             <span class="accordion-title">吸引优势</span>
@@ -1064,7 +1064,7 @@
                             <div class="accordion-content-text" id="advantages"></div>
                         </div>
                     </div>
-                    <div class="accordion-item risk">
+                    <div class="accordion-item risk active">
                         <div class="accordion-header">
                             <span class="accordion-icon">⚠️</span>
                             <span class="accordion-title">潜在风险</span>
@@ -1074,7 +1074,7 @@
                             <div class="accordion-content-text" id="risks"></div>
                         </div>
                     </div>
-                    <div class="accordion-item suggestion">
+                    <div class="accordion-item suggestion active">
                         <div class="accordion-header">
                             <span class="accordion-icon">💡</span>
                             <span class="accordion-title">改善建议</span>
@@ -1216,6 +1216,36 @@
                 }
             });
 
+            // ==================== 手风琴折叠事件委托 ====================
+            /**
+             * 使用事件委托处理手风琴折叠
+             * 优势：
+             * 1. 只绑定一次，不会重复绑定
+             * 2. 使用事件委托，性能更好
+             * 3. 动态添加的手风琴项也能正常工作
+             *
+             * 与 initAccordion() 的区别：
+             * - initAccordion(): 每次调用都给所有 .accordion-header 添加新监听器
+             * - 事件委托: 只绑定一次在 document 上，通过 target 判断
+             */
+            document.addEventListener('click', function(e) {
+                const header = e.target.closest('.accordion-header');
+                if (!header) return;
+
+                const item = header.parentElement;
+                const isActive = item.classList.contains('active');
+
+                // 关闭所有其他项
+                document.querySelectorAll('.accordion-item').forEach(i => {
+                    i.classList.remove('active');
+                });
+
+                // 切换当前项
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+
             // ==================== 开始测试 ====================
             document.getElementById('startQuiz').addEventListener('click', function() {
                 currentQuestion = 0;
@@ -1251,9 +1281,16 @@
                 document.getElementById('progressPercentage').textContent = Math.round(progress) + '%';
                 document.getElementById('questionText').textContent = q.q;
 
+                // 打乱选项顺序（Fisher-Yates 洗牌算法）
+                const shuffledOpts = [...q.opts];
+                for (let i = shuffledOpts.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffledOpts[i], shuffledOpts[j]] = [shuffledOpts[j], shuffledOpts[i]];
+                }
+
                 const optionsBox = document.getElementById('optionsList');
                 optionsBox.innerHTML = '';
-                q.opts.forEach(opt => {
+                shuffledOpts.forEach(opt => {
                     const btn = document.createElement('button');
                     btn.className = 'option-button';
                     btn.textContent = opt.t;
@@ -1439,10 +1476,29 @@
             }
 
             // 4. 手风琴折叠初始化
+            /**
+             * 初始化手风琴折叠功能
+             * 使用克隆替换法清除旧的事件监听器，避免重复绑定
+             *
+             * 问题背景：
+             * - 每次调用 calculateResult() 都会重新调用 initAccordion()
+             * - 如果不清除旧监听器，同一个元素会绑定多个监听器
+             * - 多个监听器同时执行会导致冲突（一个添加 active 类，另一个又移除）
+             *
+             * 解决方案：
+             * - 使用 cloneNode(true) 克隆节点
+             * - 用克隆的节点替换原节点，这样会清除所有旧的事件监听器
+             * - 在新节点上绑定新的事件监听器
+             */
             function initAccordion() {
                 const headers = document.querySelectorAll('.accordion-header');
                 headers.forEach(header => {
-                    header.addEventListener('click', function() {
+                    // 克隆替换，清除所有旧的事件监听器
+                    const newHeader = header.cloneNode(true);
+                    header.parentNode.replaceChild(newHeader, header);
+
+                    // 在新节点上绑定事件
+                    newHeader.addEventListener('click', function() {
                         const item = this.parentElement;
                         const isActive = item.classList.contains('active');
 
@@ -1492,7 +1548,9 @@
 
                         // 读取分数计算配置
                         const scoringConfig = APP_CONFIG.scoring || { maxQuestions: 20, maxScorePerQuestion: 3 };
-                        const maxPossibleScore = scoringConfig.maxQuestions * scoringConfig.maxScorePerQuestion;
+                        const maxScoresByType = scoringConfig.maxScoresByType || {};
+                        // 使用传入的类型获取对应的最高分
+                        const maxPossibleScore = maxScoresByType[result.maxType] || (scoringConfig.maxQuestions * scoringConfig.maxScorePerQuestion);
 
                         // 设置内容
                         shareTitle.textContent = result.typeName;
@@ -1576,11 +1634,12 @@
                 }
 
                 // 计算吸引力分数
-                // 公式：(用户得分 / 最大可能得分) × 100
-                // 最大可能得分 = 题目数 × 每题最高分（从配置读取）
+                // 使用对应类型的最高可能得分作为分母（而非固定的60分）
                 const scoringConfig = APP_CONFIG.scoring || { maxQuestions: 20, maxScorePerQuestion: 3 };
-                const maxPossibleScore = scoringConfig.maxQuestions * scoringConfig.maxScorePerQuestion; // 60
-                const attractionScore = Math.round((maxScore / maxPossibleScore) * 100);
+                const maxScoresByType = scoringConfig.maxScoresByType || {};
+                const maxPossibleScore = maxScoresByType[maxType] || (scoringConfig.maxQuestions * scoringConfig.maxScorePerQuestion);
+                // 使用 Math.min 确保分数不超过 100
+const attractionScore = Math.min(100, Math.round((maxScore / maxPossibleScore) * 100));
 
                 // 显示类型名称
                 document.getElementById('resultTypeName').textContent = result.typeName;
@@ -1596,16 +1655,25 @@
                 });
 
                 // 显示核心原因
-                document.getElementById('coreReason').textContent = result.coreReason || '';
+                document.getElementById('coreReason').textContent = result.coreReason || '你的独特魅力自然会吸引与你同频的人。';
 
-                // 显示吸引优势
-                document.getElementById('advantages').textContent = result.advantages || '';
+                // 显示吸引优势（使用更友好的后备内容）
+                document.getElementById('advantages').textContent =
+                    (result.advantages && result.advantages.trim()) ?
+                    result.advantages :
+                    '你独特的魅力让关系充满活力，你的真诚投入让对方感受到被珍视。';
 
-                // 显示潜在风险
-                document.getElementById('risks').textContent = result.risks || '';
+                // 显示潜在风险（使用更友好的后备内容）
+                document.getElementById('risks').textContent =
+                    (result.risks && result.risks.trim()) ?
+                    result.risks :
+                    '注意在关系中保持平衡，既要关注对方，也要照顾自己的需求。';
 
-                // 显示改善建议
-                document.getElementById('suggestions').textContent = result.suggestions || '';
+                // 显示改善建议（使用更友好的后备内容）
+                document.getElementById('suggestions').textContent =
+                    (result.suggestions && result.suggestions.trim()) ?
+                    result.suggestions :
+                    '继续保持真实的自己，同时学会在关系中保持健康的边界感。';
 
                 // 显示结果页
                 showPage('resultPage');
@@ -1619,11 +1687,12 @@
                 // 新增：启动分数环形动画
                 setTimeout(() => animateScoreRing(attractionScore), 500);
 
-                // 新增：初始化手风琴折叠
-                initAccordion();
+                // 注意：手风琴折叠使用事件委托处理（见 DOMContentLoaded 部分），
+                // 这里不需要再调用 initAccordion()
 
                 // 新增：设置下载分享功能
                 result.maxScore = maxScore; // 保存分数用于生成图片
+                result.maxType = maxType;   // 新增：传入类型，用于计算正确的分数
                 downloadShareImage(result);
             }
 

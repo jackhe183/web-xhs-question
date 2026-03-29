@@ -45,7 +45,7 @@ const APP_CONFIG = {
     content: {
         pageTitle: '你会吸引哪种另一半',
         authTitle: '输入密码解锁',
-        passwordHint: '密码为 4 位数字 (演示密码: 1234)',
+        passwordHint: '请输入 4 位数字密码',
         passwordBtn: '确认进入',
         passwordError: '密码错误，请重试',
         coverTitle: '你会吸引哪种另一半',
@@ -57,7 +57,7 @@ const APP_CONFIG = {
     },
 
     // ========== 3. 业务数据 ==========
-    password: '1234',
+    password: '3729',
 
     // ========== 4. 题目数据（20道精选题目） ==========
     // 类型映射：A=情绪依赖型, B=成熟稳定型, C=自由理性型, D=渣感型, E=控制型
@@ -319,8 +319,15 @@ const APP_CONFIG = {
     // ========== 7. 分数计算配置 ==========
     scoring: {
         maxQuestions: 20,      // 题目总数
-        maxScorePerQuestion: 3 // 每题最高分
-        // 最大可能得分 = maxQuestions × maxScorePerQuestion = 60
+        maxScorePerQuestion: 3, // 每题最高分
+        // 每个类型的实际最高可能得分（从题目数据统计得出）
+        maxScoresByType: {
+            'A': 39,  // 情绪依赖型
+            'B': 38,  // 成熟稳定型
+            'C': 37,  // 自由理性型
+            'D': 34,  // 渣感型
+            'E': 31   // 控制型
+        }
     },
 
     // ========== 8. 分享图片配置 ==========
